@@ -1,5 +1,5 @@
 #include "trajectory.hpp"
-#include "mathf.h"
+#include "math.h"
 
 
 #include "machine_paramater.h"
@@ -76,6 +76,7 @@ int DoubleTrajectory::Update(){
 			traj_type=traj2->GetTragType();
 			phase++;
 		}
+		traj_type=traj1->GetTragType();
 		traj1->GetTargetPosition(&x,&y,&theta);
 		traj1->GetTargetVelocity(&vx,&vy,&omega);
 		traj1->GetTargetAcceleration(&ax,&ay,&atheta);
@@ -85,6 +86,7 @@ int DoubleTrajectory::Update(){
 			delete traj2;
 			is_finish=1;
 		}
+		traj_type=traj2->GetTragType();
 		traj2->GetTargetPosition(&x,&y,&theta);
 		traj2->GetTargetVelocity(&vx,&vy,&omega);
 		traj2->GetTargetAcceleration(&ax,&ay,&atheta);
@@ -112,6 +114,7 @@ int MultTrajectory::Update(){
 			traj_type=traj2->GetTragType();
 			phase++;
 		}
+		traj_type=traj1->GetTragType();
 		traj1->GetTargetPosition(&x,&y,&theta);
 		traj1->GetTargetVelocity(&vx,&vy,&omega);
 		traj1->GetTargetAcceleration(&ax,&ay,&atheta);
@@ -122,6 +125,7 @@ int MultTrajectory::Update(){
 			traj_type=traj3->GetTragType();
 			phase++;
 		}
+		traj_type=traj2->GetTragType();
 		traj2->GetTargetPosition(&x,&y,&theta);
 		traj2->GetTargetVelocity(&vx,&vy,&omega);
 		traj2->GetTargetAcceleration(&ax,&ay,&atheta);
@@ -131,6 +135,7 @@ int MultTrajectory::Update(){
 			delete traj3;
 			is_finish=1;
 		}
+		traj_type=traj3->GetTragType();
 		traj3->GetTargetPosition(&x,&y,&theta);
 		traj3->GetTargetVelocity(&vx,&vy,&omega);
 		traj3->GetTargetAcceleration(&ax,&ay,&atheta);
@@ -148,13 +153,13 @@ Slalom::Slalom(float _theta_deg,float radius,float _v0, float _vmax, float _vf, 
 	vmax=_vmax;
 	if(_theta_deg<0){
 		dir=-1;
-		t1=- 2*r*3.14* _theta_deg/360.0 /vmax;
+		t1=- r*3.14* _theta_deg/180.0 /vmax;
 	}else{
 		dir=1;
-		t1=  2*r*3.14* _theta_deg/360.0 /vmax;
+		t1=  r*3.14* _theta_deg/180.0 /vmax;
 	}
 }
-
+//t1=TREAD_WIDTH/2.0 * 3.14* _theta_deg/180.0 /vmax;
 int Slalom::Update(){
 	int is_finish=0;
 	x=0;
@@ -162,7 +167,7 @@ int Slalom::Update(){
 	theta=0;
 	vx=0;
 	vy=vmax;
-	omega=	dir*vmax/(2*r);
+	omega=	dir*vmax/r;
 	if(t_s>t1)is_finish=1;
 	t_s+=period_s;
 
@@ -172,36 +177,75 @@ int Slalom::Update(){
 
 
 
-Rotate::Rotate(float _theta_deg,float _v0, float _vmax, float _vf, float _a):Trajectory(),t_s(0)
+Rotate::Rotate(float _theta_deg,float _omega_max, float _a_omega):Trajectory(),t_s(0)
 {
 	traj_type=rotate;
 	
 	period_s=0.001; //[s]
-	vmax=_vmax;
+	
 	if(_theta_deg<0){
-		vmax=-vmax;
-		t1=TREAD_WIDTH*3.14* _theta_deg/360.0 /vmax;
+		dir=-1;
 	}else{
-		t1=TREAD_WIDTH*3.14* _theta_deg/360.0 /vmax;
+		dir=1;
 	}
+	theta=0;
+	a_omega=_a_omega;
+	omega_max=_omega_max;
+	t1=omega_max/a_omega;
+	t2=dir*((_theta_deg)*3.14/180.0)/omega_max;
+	t3=t1+t2;
 }
 
 int Rotate::Update(){
 	int is_finish=0;
 	x=0;
 	y=0;
-	theta=0;
 	vx=0;
 	vy=0;
-	omega=vmax/(TREAD_WIDTH);
-	if(t_s>t1)is_finish=1;
+	if(t_s<t1){
+		omega= dir*(a_omega*t_s);
+	}else if(t_s<t2){
+		omega=dir* omega_max;//dir* (a_omega*t1);
+	}else if(t_s<t3){
+		omega=dir* (a_omega*t1- a_omega*(t_s-t2) );
+	}else{
+		omega=0;
+		is_finish=1;
+	}
+	theta+=omega*period_s;
+
 	t_s+=period_s;
 
 	return is_finish;
 	
 }
 
+int ConstantVoltage::Update(){
+	int is_finish=0;
+	if(t_s>t1_s){
+		is_finish=1;
+	}
+	
+	t_s+=period_s;
+	
+	return is_finish;
+}
 
+ConstantVoltage::ConstantVoltage(float Vr, float Vl, float time_ms){
+	traj_type=constant_voltage;
+	x=0;
+	y=0;
+	theta=0;
+	vx=Vr;
+	vy=Vl;
+	omega=0;
+	ax=0;
+	ay=0;
+	atheta=0;
+	period_s=0.001;
+	t1_s=time_ms*0.001;
+	t_s=0;
+}
 
 Line::Line(float _x, float _y, float _theta, float _v0, float _vmax, float _vf, float _a, float _j):Trajectory()
 {
@@ -225,6 +269,11 @@ Line::Line(float _x, float _y, float _theta, float _v0, float _vmax, float _vf, 
 		t2=l/vmax-(vmax*vmax-v0*v0)/(2*a*vmax)-(vmax*vmax-vf*vf)/(2*a*vmax)+t1;
 		t3=(vmax-vf)/a+t2;
 	}else{
+		//v0+a*t1-a*(t3-t1)=vf  //t3=-(vf-v0-a*t1)/a+t1
+		//(v0+v0+a*t1)*t1/2+(v0+a*t1+vf)*(t3-t1)/2=l
+		t1=(-2*a*v0+sqrtf(4*a*a*v0*v0 - 2*a*a*(v0*v0-vf*vf-2*a*l)))/(2*a*a);
+		t3=(v0+a*t1-vf)/a+t1;		
+		t2=t1;
 
 	}
 }
@@ -235,11 +284,11 @@ int Line::Update(){
 		v=a*t_s+v0;
 		pos=1/2.0*a*t_s*t_s+v0*t_s;
 	}else if(t_s<t2){
-		v=vmax;
-		pos=vmax*(t_s-t1)+1/2.0*a*t1*t1+v0*t1;
+		v=a*t1+v0;
+		pos=(a*t1+v0)*(t_s-t1)+1/2.0*a*t1*t1+v0*t1;
 	}else if(t_s<t3){
-		v=-a*(t_s-t2)+vmax;
-		pos=-1/2.0*a*(t_s-t2)*(t_s-t2)+vmax*(t_s-t2)+ vmax*(t2-t1)+1/2.0*a*t1*t1+v0*t1;
+		v=-a*(t_s-t2)+(a*t1+v0);
+		pos=-1/2.0*a*(t_s-t2)*(t_s-t2)+(a*t1+v0)*(t_s-t2)+ (a*t1+v0)*(t2-t1)+1/2.0*a*t1*t1+v0*t1;
 	}else{
 		v=vf;
 		pos=l;
@@ -255,35 +304,36 @@ int Line::Update(){
 	return is_finish;
 }
 
-Clothoid::Clothoid(float _t1,float _t2,float _t3,float _v,float omega_max,int cw_ccw){
+Clothoid::Clothoid(clothoid_params params,int _cw_ccw){
 	traj_type=clothoid;
 	
 	period_s=0.001; //[s]
 	cw_ccw=_cw_ccw;
-	t1=_t1:
-	t2=_t2;
-	t3=_t3;
-	v=_v;
-	omega_max=_omega_max;
+	t1=params.t1;
+	t2=params.t2;
+	t3=params.t3;
+	v=params.v;
+	omega_max=params.omega;
+	t_s=0;
 }
 
 int Clothoid::Update(){
 	int is_finish=0;
-	is(t_s<t1){
-		omega=omega_max/t1*t_s;
+	if(t_s<t1){
+		omega=cw_ccw*omega_max/t1*t_s;
 
 	}else if(t_s<t2){
-		omega=omega_max;
+		omega=cw_ccw*omega_max;
 
 	}else if(t_s<t3){
-		omega=omega_max-omega_max/(t3-t2)*(t_s-t2);
+		omega=cw_ccw * ( omega_max-omega_max/(t3-t2)*(t_s-t2) );
 	}else{
 		omega=0;
 		is_finish=1;
 	}
-	omega=v/r;
-	theta+=omega*period_ms;
-
-	t_s+=period_ms;
+	theta+=omega*period_s;
+	vx=0;
+	vy=v;
+	t_s+=period_s;
 	return is_finish;
 }

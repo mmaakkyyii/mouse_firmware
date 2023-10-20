@@ -1,26 +1,11 @@
 #include "battery_check.hpp"
-#include "iodefine.h"
 
 BatteryCheck::BatteryCheck(){}
 void BatteryCheck::Init(){
-	MPC.PE0PFS.BIT.ASEL=1;	//A/D SEN_FR
-	MPC.PWPR.BYTE=0x80;
-
-	PORTE.PMR.BIT.B0=1;		//A/D
-
-	SYSTEM.PRCR.WORD = 0xA502;
-	MSTP(S12AD) = 0;
-	SYSTEM.PRCR.WORD = 0xA500;	
-
-	S12AD.ADCER.BIT.ADRFMT=0;//ÅÒE?A?s
-	S12AD.ADCSR.BIT.CKS=0x03;//PCLK?I?a?u?E?É 
 
 }
 void BatteryCheck::Update(){
-	S12AD.ADANS0.BIT.ANS0=0x0100;			//AN008
-	S12AD.ADCSR.BIT.ADST=1;					//ADïœä∑äJén
-	while(S12AD.ADCSR.BIT.ADST);			//ADïœä∑èIóπÇ‹Ç≈ë“Ç¬
-	adc_val = S12AD.ADDR8;				//ílÇï€ë∂
+	adc_val = 0;				//ÔøΩlÔøΩÔøΩ€ëÔøΩ
 
 }
 float BatteryCheck::GetBatteryVoltage_V(){

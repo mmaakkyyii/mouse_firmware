@@ -51,6 +51,16 @@ void int_1ms(){
 			mode = new Debug(&ita_PiCo);
 			mode->Init();
 			break;
+		case doNotRotate_mode:
+			delete mode;
+			mode = new DoNotRotate(&ita_PiCo);
+			mode->Init();
+			break;
+		case logOutput_mode:
+			delete mode;
+			mode = new LogOutput(&ita_PiCo);
+			mode->Init();
+			break;
 		default:
 			break;
 		}

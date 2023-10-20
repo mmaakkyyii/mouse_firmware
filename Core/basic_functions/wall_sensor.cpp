@@ -1,43 +1,12 @@
 #include "wall_sensor.hpp"
-//#include "portdef.h"
-#include "iodefine.h"
 #include "static_parameters.h"
 
-#define SLED_L	(PORTB.PODR.BIT.B5)			//¶ƒZƒ“ƒTLED
-#define SLED_R	(PORT2.PODR.BIT.B7)			//‰EƒZƒ“ƒTLED
-#define SLED_FL	(PORT0.PODR.BIT.B5)			//¶‘OƒZƒ“ƒTLED
-#define SLED_FR	(PORT5.PODR.BIT.B4)			//‰E‘OƒZƒ“ƒTLED
 
 
 WallSensor::WallSensor(){
 	
 }
 void WallSensor::Init(){
-	PORTB.PDR.BIT.B5 = IO_OUT;//SLED_L
-	PORT2.PDR.BIT.B7 = IO_OUT;//SLED_R
-	PORT0.PDR.BIT.B5 = IO_OUT;//SLED_FL
-	PORT5.PDR.BIT.B4 = IO_OUT;//SLED_FR
-	
-	MPC.PE1PFS.BIT.ASEL=1;	//A/D SEN_FR
-	MPC.P44PFS.BIT.ASEL=1;	//A/D SEN_FL
-	MPC.P46PFS.BIT.ASEL=1;	//A/D SEN_R
-	MPC.P42PFS.BIT.ASEL=1;	//A/D SEN_L
-	MPC.PWPR.BYTE=0x80;
-	
-//	PORTE.PMR.BIT.B0=1;		//A/D
-	PORTE.PMR.BIT.B1=1;		//A/D
-	PORT4.PMR.BIT.B4=1;		//A/D
-	PORT4.PMR.BIT.B6=1;		//A/D
-	PORT4.PMR.BIT.B2=1;		//A/D
-
-		SYSTEM.PRCR.WORD = 0xA502;
-	MSTP(S12AD) = 0;
-	    SYSTEM.PRCR.WORD = 0xA500;	
-	
-	S12AD.ADCER.BIT.ADRFMT=0;//ñE?A?s
-	S12AD.ADCSR.BIT.CKS=0x03;//PCLK?I?a?u?E?ƒÊ
-//	S12AD.ADSSTR01.BIT.SST1=20;//Default 20?X?e?[?g 0.417us 0.4us?E?a?a???˜
-
 }
 
 int WallSensor::GetError(){
@@ -49,126 +18,110 @@ int WallSensor::GetError(){
 	return error;
 }
 void WallSensor::Update(){
-	static int state = 0;		//“Ç‚Ýž‚ÞƒZƒ“ƒT‚Ìƒ[ƒe[ƒVƒ‡ƒ“ŠÇ——p•Ï”
+	static int state = 0;		//ï¿½Ç‚Ýï¿½ï¿½ÞƒZï¿½ï¿½ï¿½Tï¿½Ìƒï¿½ï¿½[ï¿½eï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½Ç—ï¿½ï¿½pï¿½Ïï¿½
 	int i;
 	switch(state)
 	{
-		case 0:										//‰EƒZƒ“ƒT“Ç‚Ýž‚Ý
+		case 0:										//ï¿½Eï¿½Zï¿½ï¿½ï¿½Tï¿½Ç‚Ýï¿½ï¿½ï¿½
 
-			SLED_R = 1;								//LED“_“”
-			for(i = 0; i < WAITLOOP_SLED; i++)	;	//ƒtƒHƒgƒgƒ‰ƒ“ƒWƒXƒ^‚Ì‰ž“š‘Ò‚¿ƒ‹[ƒv
-			S12AD.ADANS0.BIT.ANS0=0x0040;			//AN006
-			S12AD.ADCSR.BIT.ADST=1;					//AD•ÏŠ·ŠJŽn
-			while(S12AD.ADCSR.BIT.ADST);			//AD•ÏŠ·I—¹‚Ü‚Å‘Ò‚Â
-			SLED_R = 0;								//LEDÁ“”
+//			SLED_R = 1;								//LEDï¿½_ï¿½ï¿½
+//			SLED_R = 0;								//LEDï¿½ï¿½ï¿½ï¿½
 
-			pre_right = right;			//‰ß‹Ž‚Ì’l‚ð•Û‘¶
-			right = S12AD.ADDR6;				//’l‚ð•Û‘¶
+			pre_right = right;			//ï¿½ß‹ï¿½ï¿½Ì’lï¿½ï¿½Û‘ï¿½
+//			right = S12AD.ADDR6;				//ï¿½lï¿½ï¿½Û‘ï¿½
 
-			if(right > TH_SEN_R)			//•Ç‚Ì—L–³‚ð”»’f
+			if(right > TH_SEN_R)			//ï¿½Ç‚Ì—Lï¿½ï¿½ï¿½ð”»’f
 			{
-				is_wallR = 1;				//‰E•Ç‚ ‚è
+				is_wallR = 1;				//ï¿½Eï¿½Ç‚ï¿½ï¿½ï¿½
 			}
 			else
 			{
-				is_wallR = 0;				//‰E•Ç‚È‚µ
+				is_wallR = 0;				//ï¿½Eï¿½Ç‚È‚ï¿½
 			}
 			
-			if(right > TH_CTRL_R)		//§Œä‚ð‚©‚¯‚é‚©”Û‚©‚ð”»’f
+			if(right > TH_CTRL_R)		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½é‚©ï¿½Û‚ï¿½ï¿½ð”»’f
 			{
-				error_R = right - REF_SEN_R;	//§Œä‚ð‚©‚¯‚éê‡‚Í•Î·‚ðŒvŽZ
-				is_controlR = 1;			//‰EƒZƒ“ƒT‚ð§Œä‚ÉŽg‚¤
+				error_R = right - REF_SEN_R;	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½Í•Îï¿½ï¿½ï¿½ï¿½vï¿½Z
+				is_controlR = 1;			//ï¿½Eï¿½Zï¿½ï¿½ï¿½Tï¿½ð§Œï¿½ÉŽgï¿½ï¿½
 			}
 			else
 			{
-				error_R = 0;					//§Œä‚ÉŽg‚í‚È‚¢ê‡‚Í•Î·‚ð0‚É‚µ‚Ä‚¨‚­
-				is_controlR = 0;			//‰EƒZƒ“ƒT‚ð§Œä‚ÉŽg‚í‚È‚¢
+				error_R = 0;					//ï¿½ï¿½ï¿½ï¿½ÉŽgï¿½ï¿½È‚ï¿½ï¿½ê‡ï¿½Í•Îï¿½ï¿½ï¿½0ï¿½É‚ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½
+				is_controlR = 0;			//ï¿½Eï¿½Zï¿½ï¿½ï¿½Tï¿½ð§Œï¿½ÉŽgï¿½ï¿½È‚ï¿½
 			}			
 			break;
 
 
-		case 1:		//‘O¶ƒZƒ“ƒT“Ç‚Ýž‚Ý
+		case 1:		//ï¿½Oï¿½ï¿½ï¿½Zï¿½ï¿½ï¿½Tï¿½Ç‚Ýï¿½ï¿½ï¿½
 
-			SLED_FL = 1;							//LED“_“”
-			for(i = 0; i < WAITLOOP_SLED; i++)	;	//ƒtƒHƒgƒgƒ‰ƒ“ƒWƒXƒ^‚Ì‰ž“š‘Ò‚¿ƒ‹[ƒv
-			S12AD.ADANS0.BIT.ANS0=0x0010;			//AN004
-			S12AD.ADCSR.BIT.ADST=1;					//AD•ÏŠ·ŠJŽn
-			while(S12AD.ADCSR.BIT.ADST);			//AD•ÏŠ·I—¹‚Ü‚Å‘Ò‚Â
-			SLED_FL = 0;							//LEDÁ“”
+//			SLED_FL = 1;							//LEDï¿½_ï¿½ï¿½
+//			SLED_FL = 0;							//LEDï¿½ï¿½ï¿½ï¿½
 
-			pre_frontL = frontL;			//‰ß‹Ž‚Ì’l‚ð•Û‘¶
-			frontL = S12AD.ADDR4;				//’l‚ð•Û‘¶
+			pre_frontL = frontL;			//ï¿½ß‹ï¿½ï¿½Ì’lï¿½ï¿½Û‘ï¿½
+//			frontL = S12AD.ADDR4;				//ï¿½lï¿½ï¿½Û‘ï¿½
 
-			if(frontL > TH_SEN_FL)		//•Ç‚Ì—L–³‚ð”»’f
+			if(frontL > TH_SEN_FL)		//ï¿½Ç‚Ì—Lï¿½ï¿½ï¿½ð”»’f
 			{
-				is_wallFL = 1;				//¶‘O•Ç‚ ‚è
+				is_wallFL = 1;				//ï¿½ï¿½ï¿½Oï¿½Ç‚ï¿½ï¿½ï¿½
 			}
 			else
 			{
-				is_wallFL = 0;				//¶‘O•Ç‚È‚µ
+				is_wallFL = 0;				//ï¿½ï¿½ï¿½Oï¿½Ç‚È‚ï¿½
 			}
 			break;
 
 
-		case 2:		//‘O‰EƒZƒ“ƒT“Ç‚Ýž‚Ý
+		case 2:		//ï¿½Oï¿½Eï¿½Zï¿½ï¿½ï¿½Tï¿½Ç‚Ýï¿½ï¿½ï¿½
 		
-			SLED_FR = 1;							//LED“_“”
-			for(i = 0; i < WAITLOOP_SLED; i++)	;	//ƒtƒHƒgƒgƒ‰ƒ“ƒWƒXƒ^‚Ì‰ž“š‘Ò‚¿ƒ‹[ƒv
-			S12AD.ADANS0.BIT.ANS0=0x0200;			//AN009
-			S12AD.ADCSR.BIT.ADST=1;					//AD•ÏŠ·ŠJŽn
-			while(S12AD.ADCSR.BIT.ADST);			//AD•ÏŠ·I—¹‚Ü‚Å‘Ò‚Â
-			SLED_FR = 0;							//LEDÁ“”
+//			SLED_FR = 1;							//LEDï¿½_ï¿½ï¿½
+//			SLED_FR = 0;							//LEDï¿½ï¿½ï¿½ï¿½
 
-			pre_frontR = frontR;			//‰ß‹Ž‚Ì’l‚ð•Û‘¶
-			frontR = S12AD.ADDR9;				//’l‚ð•Û‘¶
+			pre_frontR = frontR;			//ï¿½ß‹ï¿½ï¿½Ì’lï¿½ï¿½Û‘ï¿½
+//			frontR = S12AD.ADDR9;				//ï¿½lï¿½ï¿½Û‘ï¿½
 
-			if(frontR > TH_SEN_FR)		//•Ç‚Ì—L–³‚ð”»’f
+			if(frontR > TH_SEN_FR)		//ï¿½Ç‚Ì—Lï¿½ï¿½ï¿½ð”»’f
 			{
-				is_wallFR = 1;				//‰E‘O•Ç‚ ‚è
+				is_wallFR = 1;				//ï¿½Eï¿½Oï¿½Ç‚ï¿½ï¿½ï¿½
 			}
 			else
 			{
-				is_wallFR = 0;				//‰E‘O•Ç‚È‚µ
+				is_wallFR = 0;				//ï¿½Eï¿½Oï¿½Ç‚È‚ï¿½
 			}			
 			break;
 
 
-		case 3:		//¶ƒZƒ“ƒT“Ç‚Ýž‚Ý
+		case 3:		//ï¿½ï¿½ï¿½Zï¿½ï¿½ï¿½Tï¿½Ç‚Ýï¿½ï¿½ï¿½
 		
-			SLED_L = 1;					//LED“_“”
-			for(i = 0; i < WAITLOOP_SLED; i++)	;	//ƒtƒHƒgƒgƒ‰ƒ“ƒWƒXƒ^‚Ì‰ž“š‘Ò‚¿ƒ‹[ƒv
-			S12AD.ADANS0.BIT.ANS0=0x0004;			//AN002
-			S12AD.ADCSR.BIT.ADST=1;					//AD•ÏŠ·ŠJŽn
-			while(S12AD.ADCSR.BIT.ADST);			//AD•ÏŠ·I—¹‚Ü‚Å‘Ò‚Â
-			SLED_L = 0;					//LEDÁ“”
+//			SLED_L = 1;					//LEDï¿½_ï¿½ï¿½
+//			SLED_L = 0;					//LEDï¿½ï¿½ï¿½ï¿½
 
-			pre_left = left;			//‰ß‹Ž‚Ì’l‚ð•Û‘¶
-			left = S12AD.ADDR2;				//’l‚ð•Û‘¶
+			pre_left = left;			//ï¿½ß‹ï¿½ï¿½Ì’lï¿½ï¿½Û‘ï¿½
+//			left = S12AD.ADDR2;				//ï¿½lï¿½ï¿½Û‘ï¿½
 			
-			if(left > TH_SEN_L)			//•Ç‚Ì—L–³‚ð”»’f
+			if(left > TH_SEN_L)			//ï¿½Ç‚Ì—Lï¿½ï¿½ï¿½ð”»’f
 			{
-				is_wallL = 1;				//¶•Ç‚ ‚è
+				is_wallL = 1;				//ï¿½ï¿½ï¿½Ç‚ï¿½ï¿½ï¿½
 			}
 			else
 			{
-				is_wallL = 0;				//¶•Ç‚È‚µ
+				is_wallL = 0;				//ï¿½ï¿½ï¿½Ç‚È‚ï¿½
 			}
 			
-			if(left > TH_CTRL_L)		//§Œä‚ð‚©‚¯‚é‚©”Û‚©‚ð”»’f
+			if(left > TH_CTRL_L)		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½é‚©ï¿½Û‚ï¿½ï¿½ð”»’f
 			{
-				error_L = left - REF_SEN_L;	//§Œä‚ð‚©‚¯‚éê‡‚Í•Î·‚ðŒvŽZ‚·‚é
-				is_controlL = 1;			//¶ƒZƒ“ƒT‚ð§Œä‚ÉŽg‚¤
+				error_L = left - REF_SEN_L;	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½Í•Îï¿½ï¿½ï¿½ï¿½vï¿½Zï¿½ï¿½ï¿½ï¿½
+				is_controlL = 1;			//ï¿½ï¿½ï¿½Zï¿½ï¿½ï¿½Tï¿½ð§Œï¿½ÉŽgï¿½ï¿½
 			}
 			else
 			{
-				error_L = 0;					//§Œä‚ÉŽg‚í‚È‚¢ê‡‚Í•Î·‚ð0‚É‚µ‚Ä‚¨‚­
-				is_controlL = 0;			//¶ƒZƒ“ƒT‚ð§Œä‚ÉŽg‚í‚È‚¢
+				error_L = 0;					//ï¿½ï¿½ï¿½ï¿½ÉŽgï¿½ï¿½È‚ï¿½ï¿½ê‡ï¿½Í•Îï¿½ï¿½ï¿½0ï¿½É‚ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½
+				is_controlL = 0;			//ï¿½ï¿½ï¿½Zï¿½ï¿½ï¿½Tï¿½ð§Œï¿½ÉŽgï¿½ï¿½È‚ï¿½
 			}
 
 			break;
 	}
 	
-	state++;		//‚S‰ñ‚²‚Æ‚ÉŒJ‚è•Ô‚·
+	state++;		//ï¿½Sï¿½ñ‚²‚Æ‚ÉŒJï¿½ï¿½Ô‚ï¿½
 	if(state > 3)
 	{
 		state = 0;

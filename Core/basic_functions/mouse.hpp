@@ -16,7 +16,7 @@
 
 class Mouse{
 public:
-	Mouse(PID_Controler* motorR, PID_Controler* motorL, Motors* _motors, Localization* _localization, Encorders* _encorders, WallSensor* _wall_sensor, BatteryCheck* _battery_check,Buzzer* _buzzer,UI* _ui, MazeSolver* _maze_solver);
+	Mouse(PID_Controler* motorR, PID_Controler* motorL, Motors* _motors, Localization* _localization, Encorders* _encorders, IMU* _imu, WallSensor* _wall_sensor, BatteryCheck* _battery_check,Buzzer* _buzzer,UI* _ui, MazeSolver* _maze_solver);
 	void Init();
 	void Loop();
 	void Interrupt_10ms();
@@ -31,6 +31,7 @@ public:
 	Motors* motors;
 	Localization* localization;
 	Encorders* encorders;
+	IMU* imu;
 	
 	MazeSolver* maze_solver;
 

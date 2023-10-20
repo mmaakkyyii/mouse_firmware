@@ -1,21 +1,22 @@
 #include "ui.hpp"
-//#include "portdef.h"
-#include "iodefine.h"
 #include "static_parameters.h"
-
+#include "main.h"
+#include "gpio.h"
 
 void UI::SetLED(int led_data)
 {
-	PORTC.PODR.BIT.B2 = led_data&0x01;
-	PORT3.PODR.BIT.B1 = (led_data>>1)&0x01;
-	PORT1.PODR.BIT.B5 = (led_data>>2)&0x01;
-	PORTC.PODR.BIT.B3 = (led_data>>3)&0x01;
-/*
-#define LED0	(PORTC.PODR.BIT.B2)
-#define LED2	(PORT1.PODR.BIT.B5)
-#define LED3	(PORTC.PODR.BIT.B3)
-#define LED1	(PORT3.PODR.BIT.B1)
-*/
+	if((led_data>>0)&0b1) HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
+	else HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
+
+	if((led_data>>1)&0b1)HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
+	else HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
+
+	if((led_data>>2)&0b1)HAL_GPIO_WritePin(LED3_GPIO_Port, LED3_Pin, GPIO_PIN_SET);
+	else HAL_GPIO_WritePin(LED3_GPIO_Port, LED3_Pin, GPIO_PIN_RESET);
+
+	if((led_data>>3)&0b1)HAL_GPIO_WritePin(LED4_GPIO_Port, LED4_Pin, GPIO_PIN_SET);
+	else HAL_GPIO_WritePin(LED4_GPIO_Port, LED4_Pin, GPIO_PIN_RESET);
+
 }
 
 void UI::SetRBLED(int value){//0~100
@@ -25,33 +26,15 @@ void UI::SetRBLED(int value){//0~100
 }
 
 void UI::Init(){
-	PORTC.PDR.BIT.B2 = 1;//LED0
-	PORT1.PDR.BIT.B5 = 1;//LED1
-	PORTC.PDR.BIT.B3 = 1;//LED2
-	PORT3.PDR.BIT.B1 = 1;//LED3
-	PORTB.PDR.BIT.B7 = 1;//BLED0
-	PORTB.PDR.BIT.B6 = 1;//BLED1
-
 }
 void UI::Update(){
-	static int count=0;
-	count++;
-	if(count>RBLED_value){
-		PORTB.PODR.BIT.B7 = 0;//BLED0
-		PORTB.PODR.BIT.B6 = 1;//BLED1
-	}
-	else{
-		PORTB.PODR.BIT.B7 = 1;//BLED0
-		PORTB.PODR.BIT.B6 = 0;//BLED1
-	}
-	if(count>100)count=0;
 }
 int UI::GetSW1(){
-	return (PORTE.PIDR.BIT.B3);
+	return HAL_GPIO_ReadPin(SW1_GPIO_Port,SW1_Pin);
 }
 int UI::GetSW2(){
-	return (PORTE.PIDR.BIT.B5);
+	return HAL_GPIO_ReadPin(SW2_GPIO_Port,SW2_Pin);
 }
 int UI::GetSW3(){
-	return (PORTE.PIDR.BIT.B4);
+	return HAL_GPIO_ReadPin(SW1_GPIO_Port,SW1_Pin);
 }

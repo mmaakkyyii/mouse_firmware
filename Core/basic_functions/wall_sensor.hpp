@@ -21,16 +21,16 @@ public:
 private:
 	static const int WAITLOOP_SLED = 300;	//LEDを光らせてからAD変換を開始するまでの時間稼ぎ用定数
 
-	static const int REF_SEN_R = 380;	//マウスを迷路中央に置いた時のセンサの値
-	static const int REF_SEN_L = 413;	//マウスを迷路中央に置いた時のセンサの値
+	static const int REF_SEN_R = 451;//380;	//マウスを迷路中央に置いた時のセンサの値 会場(451)
+	static const int REF_SEN_L = 435;//413;	//マウスを迷路中央に置いた時のセンサの値 会場(435)
 
 	static const int TH_CTRL_R = 200;	//壁があるか否かの閾値
 	static const int TH_CTRL_L = 200;	//壁があるか否かの閾値
 
 	static const int TH_SEN_R = 150;	//壁があるか否かの閾値
 	static const int TH_SEN_L = 155;	//壁があるか否かの閾値
-	static const int TH_SEN_FR = 150;	//壁があるか否かの閾値
-	static const int TH_SEN_FL = 150;	//壁があるか否かの閾値
+	static const int TH_SEN_FR = 200;	//壁があるか否かの閾値
+	static const int TH_SEN_FL = 170;	//壁があるか否かの閾値
 
 
 

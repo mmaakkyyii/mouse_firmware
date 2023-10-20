@@ -4,12 +4,13 @@
 #include "Jacobian.hpp"
 #include "delay.h"
 
-Mouse::Mouse(PID_Controler* motorR, PID_Controler* motorL, Motors* _motors, Localization* _localization, Encorders* _encorders, WallSensor* _wall_sensor, BatteryCheck* _battery_check, Buzzer* _buzzer,UI* _ui,MazeSolver* _maze_solver)
+Mouse::Mouse(PID_Controler* motorR, PID_Controler* motorL, Motors* _motors, Localization* _localization, Encorders* _encorders,IMU* _imu, WallSensor* _wall_sensor, BatteryCheck* _battery_check, Buzzer* _buzzer,UI* _ui,MazeSolver* _maze_solver)
 :motorR_PID(motorR),
  motorL_PID(motorL),
  motors(_motors),
  localization(_localization),
  encorders(_encorders),
+ imu(_imu),
  wall_sensor(_wall_sensor),
  battery_check(_battery_check),
  buzzer(_buzzer),
@@ -33,6 +34,7 @@ void Mouse::Init(){
 	buzzer->Init();
 	motors->Init();
 	encorders->InitEncorders();
+	imu->Init();
 	
 	int map_data[MAZESIZE_X][MAZESIZE_Y]={0};
 	maze_solver->Init();
@@ -43,13 +45,12 @@ void Mouse::Init(){
 
 	maze_solver->adachi.SetMap(mouse_pos_x,mouse_pos_y,map_data[mouse_pos_x][mouse_pos_y],mouse_dir);
 
-//	InitIMU();
 
-	buzzer->SetFrequency(4000);	//’l‚ª‘‰Á‚µ‚½Žž‚ÌŽü”g”‚ðÝ’è				
-	buzzer->On();		//ƒuƒU[‚ð”­U‚³‚¹‚é
+	buzzer->SetFrequency(4000);	//ï¿½lï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÌŽï¿½ï¿½gï¿½ï¿½ï¿½ï¿½Ý’ï¿½				
+	buzzer->On();		//ï¿½uï¿½Uï¿½[ï¿½ð”­Uï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	delay_ms(100);
-	buzzer->Off();		//ƒuƒU[‚Ì”­U‚ð’âŽ~‚³‚¹‚é	
-	SCI_printf("Hello ita_PiCo\r\n");
+	buzzer->Off();		//ï¿½uï¿½Uï¿½[ï¿½Ì”ï¿½ï¿½Uï¿½ï¿½ï¿½~ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½	
+	printf("Hello ita_PiCo\r\n");
 
 //	delete trajectory;
 //	trajectory=new Line(0.0, 180.0/2, 0.0, 0, v_max, v_max, 10000.0, 0.0);
@@ -267,10 +268,16 @@ void Mouse::SerchRunMode(){
 }
 */
 
+int count=0;
 void Mouse::Interrupt_1ms(){
 	encorders->Update();
-	buzzer->Update();	
-	
+	buzzer->Update();
+	if(count>1){
+		count=0;	
+		imu->Update();
+	}else{
+		count++;
+	}
 //	localization->Update();
 //	localization->GetPosition(&current_x,&current_y,&current_theta);
 

@@ -12,7 +12,9 @@ typedef enum {
 	fastRun_mode=4,
 	parameterSetting_mode=5,
 	sensorCheck_mode=6,
-	debug_mode=7
+	debug_mode=7,
+	doNotRotate_mode=8,
+	logOutput_mode=9
 }ModeType;
 
 
@@ -25,7 +27,17 @@ public:
 	virtual void Init(){};
 	virtual void Interrupt_1ms(){};
 	int IsOtherMode();
-	void CheckBattery(){if(mouse->battery_check->GetBatteryVoltage_V() < 7)next_mode=lowBattery_mode;}
+	int low_batt_count;
+	void CheckBattery(){
+		if(mouse->battery_check->GetBatteryVoltage_V() < 7){
+			low_batt_count++;
+		}else{
+			low_batt_count=0;
+		}
+		if(low_batt_count>2000){
+			next_mode=lowBattery_mode;
+		}
+	}
 	ModeType GetCurrentMode(){return current_mode;}
 	ModeType GetNextMode(){return next_mode;}
 	
@@ -75,6 +87,8 @@ public:
 	};
 private:
 	Trajectory* trajectory;
+	clothoid_params clothoid;
+	char sla_mode;
 
 	float velocity_l,velocity_r;
 	float target_velocity_l,target_velocity_r;
@@ -107,7 +121,8 @@ public:
 	};
 private:
 	Trajectory* trajectory;
-
+	clothoid_params clothoid;
+	char sla_mode;
 	float velocity_l,velocity_r;
 	float target_velocity_l,target_velocity_r;
 
@@ -122,8 +137,12 @@ private:
 	int gesture_flag;
 	int no_hand_flag;
 	int timer;
+	
+	bool goal;
 
 	bool idle;
+	int path_length;
+	int path_index;
 	
 };
 class ParameterSetting:public MachineMode{
@@ -137,6 +156,24 @@ public:
 	};
 	~ParameterSetting();
 };
+
+class DoNotRotate:public MachineMode{
+public:
+	void Loop();
+	void Init();
+	void Interrupt_1ms();
+	DoNotRotate(Mouse* _mouse);
+	~DoNotRotate(){};
+	
+	float gyro_theta;
+	float omega_z;
+
+	int gesture_flag;
+	int no_hand_flag;
+
+	bool idle;
+
+};
 class SensorCheck:public MachineMode{
 public:
 	void Loop();
@@ -144,6 +181,14 @@ public:
 	void Interrupt_1ms();
 	SensorCheck(Mouse* _mouse);
 	~SensorCheck();
+};
+class LogOutput:public MachineMode{
+public:
+	void Loop();
+	void Init();
+	void Interrupt_1ms();
+	LogOutput(Mouse* _mouse);
+	~LogOutput(){};
 };
 class Debug:public MachineMode{
 public:

@@ -1,135 +1,84 @@
 #include "IMU.hpp"
-//#include "portdef.h"
-#include "iodefine.h"
 #include "static_parameters.h"
+#include "delay.h"
+
 //MISO P17
 //MOSI PC6
 //CLK  PC5
 //CS   PC4
 
-int Gyro_Sensitivity = 131;//131 LSB/(deg/s)
-
-int gyro_data[3];
-int acc_data[3];
-void InitIMU(){
-	SYSTEM.PRCR.WORD = 0xA502;
- 	MSTP(RSPI0) = 0;
-	SYSTEM.PRCR.WORD = 0xA500;
-
-	RSPI0.SPPCR.BIT.SPLP = 0; //RSPI???[?v?o?b?N?r?b?g ?fE?i???[?h
-	RSPI0.SPPCR.BIT.SPLP2 = 0; //RSPI2???[?v?o?b?N?r?b?g ?fE?i???[?h
-	RSPI0.SPPCR.BIT.MOIFV = 0; //MOSI?A?C?h???A?fe?fl?r?b?g ?A?C?h????Low
-	RSPI0.SPPCR.BIT.MOIFE = 0; //MOSI?A?C?h???fl?A?fe???nA?r?b?g?@?eO?nn?g]?e??I?A?I?f?[?^
-	
-	RSPI0.SPBR = 3;
-	RSPI0.SPDCR.BIT.SPFC=0;//number of frame
-	RSPI0.SPDCR.BIT.SPRDTD=0;//read rx buffer
-	RSPI0.SPDCR.BIT.SPLW=1;//ward access for SPDR
-
-
-	RSPI0.SPCKD.BIT.SCKDL=2; //?N???b?N?fx?n? 1RSPCK
-	RSPI0.SSLND.BIT.SLNDL=1;//SSL?l?Q?[?g?fx?n? 1PSPCK
-	RSPI0.SPND.BIT.SPNDL=2;//RSPI???A?N?Z?X?fx?n? 1RSPCK+2PCLK
-	
-	RSPI0.SPCR2.BIT.SPPE=0;
-	RSPI0.SPCR2.BIT.SPOE=0;
-	RSPI0.SPCR2.BIT.SPIIE=0;
-	RSPI0.SPCR2.BIT.PTE=0;
-	
-	RSPI0.SPCMD0.BIT.CPHA=1; //SPI mode 3
-	RSPI0.SPCMD0.BIT.CPOL=1; //SPI mode 3
-	
-	RSPI0.SPCMD0.BIT.BRDV=3; //bit rate
-	RSPI0.SPCMD0.BIT.SSLA=0; //SSL0
-	RSPI0.SPCMD0.BIT.SPB=0x0f; //16bit
-	RSPI0.SPCMD0.BIT.LSBF=0;//MSB first
-	RSPI0.SPCMD0.BIT.SPNDEN=0;
-	RSPI0.SPCMD0.BIT.SLNDEN=0;
-	RSPI0.SPCMD0.BIT.SCKDEN=0;
-	
-	//MISO P17
-	//MOSI PC6
-	//CLK  PC5
-	//CS   PC4
-	PORT1.PDR.BIT.B7=IO_IN;
-	PORTC.PDR.BIT.B6=IO_OUT;
-	PORTC.PDR.BIT.B5=IO_OUT;
-	PORTC.PDR.BIT.B4=IO_OUT;
-
-	MPC.PWPR.BIT.B0WI=0;
-	MPC.PWPR.BIT.PFSWE=1;
-
-	MPC.P17PFS.BIT.PSEL=13;//MISOA
-	MPC.PC6PFS.BIT.PSEL=13;//MOSIA
-	MPC.PC5PFS.BIT.PSEL=13;	//RSPCKA 
-	MPC.PC4PFS.BIT.PSEL=13;	//SSLA0  
-	MPC.PWPR.BYTE = 0x80;  // Reprotect
-
-	PORT1.PMR.BIT.B7=1;
-	PORTC.PMR.BIT.B6=1;
-	PORTC.PMR.BIT.B5=1;
-	PORTC.PMR.BIT.B4=1;
-
-	RSPI0.SPCR.BIT.SPMS=0;//SPI operation
-	RSPI0.SPCR.BIT.TXMD=0;//full duplex
-	RSPI0.SPCR.BIT.MODFEN=0;//disable mode fault
-	RSPI0.SPCR.BIT.MSTR=1;//master mode
-	RSPI0.SPCR.BIT.SPEIE=0;//disable interrupt request
-	RSPI0.SPCR.BIT.SPTIE=0;//disable interrupt
-	RSPI0.SPCR.BIT.SPE=1;//enable RSPI
-	RSPI0.SPCR.BIT.SPRIE=0;//disable spi recive interrupt
-	
+IMU::IMU(){
+	calibration_flag=false;
+	calibration_finish_flag=false;
 }
 
-unsigned short Read16bitIMU(unsigned char  addr){
-	RSPI0.SPCMD0.BIT.SPB=0x03; //32bit
-	RSPI0.SPCR.BIT.SPE=1;
-	RSPI0.SPDR.LONG=((addr<<24)|0x80<<24) & 0xFF000000;
-//	RSPI0.SPCR.BIT.SPTIE  = 0;  // Disable transmission IRQ
-//	RSPI0.SPCR2.BIT.SPIIE = 1;  // Enable idle IRQ
-//	RSPI0.SPCR.BIT.SPRIE  = 1;  // Enable receive IRQ
+void IMU::Init(){
 	
-	RSPI0.SPDCR.BIT.SPRDTD=0;//rx buffer
-	long data =RSPI0.SPDR.LONG;
-	return (data)&0xFFFF;
+}
+bool IMU::Calibration(){
+	if(calibration_flag==false){
+		calibration_flag=true;
+		calibration_finish_flag=false;
+		gyro_data_offset[2]=0;
+		cal_num=0;
+	}
+	const int offset_num=512;
+
+//	unsigned long _imu=Read16bit(GYRO_XOUT_H_ADDR+2*2);
+//	gyro_data_offset[2]+=(_imu>>8) & 0xffff;
+	if(cal_num>offset_num){
+		gyro_data_offset[2]=gyro_data_offset[2]/cal_num;
+		calibration_finish_flag=true;
+		calibration_flag=false;
+	}
+	return calibration_finish_flag;
 }
 
-unsigned char ReadIMU(unsigned char  addr){
-	RSPI0.SPCMD0.BIT.SPB=0x03; //32bit
-	RSPI0.SPCR.BIT.SPE=1;
-	RSPI0.SPDR.LONG=((addr<<24)|0x80<<24)& 0xFF000000;
-//	RSPI0.SPCR.BIT.SPTIE  = 0;  // Disable transmission IRQ
-//	RSPI0.SPCR2.BIT.SPIIE = 1;  // Enable idle IRQ
-//	RSPI0.SPCR.BIT.SPRIE  = 1;  // Enable receive IRQ
-	
-	RSPI0.SPDCR.BIT.SPRDTD=0;//rx buffer
-	long data =RSPI0.SPDR.LONG;
-	return (data>>16)&0xFF;
+unsigned short IMU::Read16bit(unsigned char  addr){
+	return 0;
+}
+
+unsigned char IMU::Read(unsigned char  addr){
 
 }
 
 
-unsigned long WriteIMU(){
-	RSPI0.SPCMD0.BIT.SPB=0x0f; //16bit
+unsigned long IMU::Write(unsigned char  addr, char data){
+	return 0;
+}
 
-	RSPI0.SPCR.BIT.SPE=1;
-	RSPI0.SPDR.LONG=0xf5000000 & 0xFF000000;
+void IMU::Update(){
+	unsigned long _imu;
+	_imu=Read16bit(GYRO_XOUT_H_ADDR+2*2);
+
+	if(calibration_flag){
+		gyro_data[2]=-1;
+		gyro_data_offset[2]+=(signed short)(_imu);
+		cal_num++;
+	}else{
+		gyro_data[2]=(signed short)(_imu);
+		gyro_data[2]-=gyro_data_offset[2];
+	}
 	
-//	RSPI0.SPCR.BIT.SPTIE  = 0;  // Disable transmission IRQ
-//	RSPI0.SPCR2.BIT.SPIIE = 1;  // Enable idle IRQ
-//	RSPI0.SPCR.BIT.SPRIE  = 1;  // Enable receive IRQ
-	
-	RSPI0.SPDCR.BIT.SPRDTD=0;//rx buffer
-	return (RSPI0.SPDR.LONG);
-
 }
-
-void UpdateIMU(){
+void IMU::GetGyroRaw(int * gyro){
+	gyro[0]=gyro_data[0];
+	gyro[1]=gyro_data[1];
+	gyro[2]=gyro_data[2];
 }
-void GetGyroRaw(int * gyro){
+void IMU::GetAccRaw(short * acc){
+	acc[0]=acc_data[0];
+	acc[1]=acc_data[1];
+	acc[2]=acc_data[2];
 }
-void GetAccRaw(int * acc){
+void IMU::GetGyro(float * gyro){
+	gyro[0]=(float)gyro_data[0]/32768.0*GYRO_FS;
+	gyro[1]=(float)gyro_data[1]/32768.0*GYRO_FS;
+	gyro[2]=(float)gyro_data[2]/32768.0*GYRO_FS;
 }
-void GetGyro(float * gyro){}
-void GetAcc(float * acc){}
+void IMU::GetAcc(float * acc){
+	acc[0]=(float)acc_data[0]/acc_sensitivity;
+	acc[1]=(float)acc_data[1]/acc_sensitivity;
+	acc[2]=(float)acc_data[2]/acc_sensitivity;
+}
 

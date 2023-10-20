@@ -8,8 +8,20 @@ typedef enum {
 	rotate=2,
 	stay=3,
 	slalom=4,
-	clothoid=5
+	clothoid=5,
+	constant_voltage=6
+	
 }TrajType;
+
+struct clothoid_params{
+	float t1;
+	float t2;
+	float t3;
+	float omega;
+	float v;
+	float in_mm;
+	float out_mm;
+};
 
 class Trajectory{
 public:
@@ -70,11 +82,17 @@ private:
 class Rotate:public Trajectory{
 public:
 	int Update();
-	Rotate(float _theta_deg,float _v0, float _vmax, float _vf, float _a);
+	//Rotate(float _theta_deg,float _v0, float _vmax, float _vf, float _a);
+	Rotate(float _theta_deg, float _omega_max, float _a_omega);
 	~Rotate(){}
 private:
 	float t_s; //[s]
 	float t1;
+	float t2;
+	float t3;
+	float a_omega;
+	float omega_max;
+	int dir;
 };
 class Line:public Trajectory{
 public:
@@ -92,6 +110,15 @@ private:
 	float v; //[mm/s]
 	float pos; //[mm]
 
+};
+class ConstantVoltage:public Trajectory{
+public:
+	int Update();
+	ConstantVoltage(float Vr, float Vl, float time_ms);
+	~ConstantVoltage(){} 
+private:
+	float t_s; //[s]
+	float t1_s; //[s]
 };
 
 class Stop:public Trajectory{
@@ -116,14 +143,14 @@ private:
 class Clothoid:public Trajectory{
 public:
 	int Update();
-	Clothoid(float _t1,float _t2,float _t3,float _v,float _omega_max,int _cw_ccw);
+	Clothoid(clothoid_params params,int _cw_ccw);
 	~Clothoid(){} 
 private:
-int cw_ccw;
-float t1,t2,t3;
-float v;
-float omega_max;
-float omega;
+	float t_s; //[s]
+	int cw_ccw;
+	float t1,t2,t3;
+	float v;
+	float omega_max;
 
 };
 
