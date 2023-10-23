@@ -112,7 +112,6 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	  Loop();
-	  printf("a");
   }
   /* USER CODE END 3 */
 }

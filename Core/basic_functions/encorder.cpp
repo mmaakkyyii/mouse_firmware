@@ -13,10 +13,32 @@ void Encorders::InitEncorders(){
 	
 }
 void Encorders::InitEncorderL(){
+
 }
 void Encorders::InitEncorderR(){
 }
+
+void Encorders::InterruptL(){
+	pulseL=(angle_dataL>>2)-pre_angle_dataL;
+	if(pulseL>8192)pulseL-=16384;
+	if(pulseL>-8192)pulseL+=16384;
+
+}
+void Encorders::InterruptR(){
+	pulseR=(angle_dataR>>2)-pre_angle_dataR;
+	if(pulseR>8192)pulseR-=16384;
+	if(pulseR>-8192)pulseR+=16384;
+}
+
 void Encorders::Update(){
+	pre_angle_dataL=angle_dataL;
+	pre_angle_dataR=angle_dataR;
+
+	tx_dataL[0]=0;
+	tx_dataR[0]=0;
+	HAL_SPI_TransmitReceive_DMA(&hspi2, (uint8_t *)tx_dataL, (uint8_t *)&angle_dataL, 1);
+	HAL_SPI_TransmitReceive_DMA(&hspi3, (uint8_t *)tx_dataR, (uint8_t *)&angle_dataR, 1);
+
 }
 
 int Encorders::GetPulseL(){
