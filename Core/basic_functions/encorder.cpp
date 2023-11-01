@@ -4,7 +4,7 @@ Encorders::Encorders(int _period_ms):period_ms(_period_ms),pulseR(0),pulseL(0),r
 	
 }
 
-void Encorders::InitEncorders(){
+void Encorders::Init(){
 	InitEncorderL();
 	InitEncorderR();
 	pluse2mm =  1/(PPR)*3.14*gear_ratio*radius_mm;

@@ -10,6 +10,8 @@ public:
 	void InitMotorL();
 	void InitMotorR();
 
+	void SetSupplayVoltage(float v){Vin=v;}
+
 	void SetDutyPWMR(unsigned short duty);
 	void SetDutyPWML(unsigned short duty);
 	void SetVoltageR(float v);

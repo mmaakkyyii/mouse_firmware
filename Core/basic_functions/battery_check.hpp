@@ -10,7 +10,7 @@ public:
 	void Update();
 	float GetBatteryVoltage_V();
 private:
-	uint32_t adc_val;
+	uint16_t adc_val[1];
 };
 
 #endif //_BATTERY_CHECK_HPP_

@@ -37,6 +37,10 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+int _write(int file, char *ptr, int len){
+	HAL_UART_Transmit_DMA(&huart1, (uint8_t *)ptr, len);
+	return len;
+}
 
 /* USER CODE END PD */
 
@@ -100,6 +104,8 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM16_Init();
   MX_TIM17_Init();
+  MX_ADC2_Init();
+  MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
   Init();
   /* USER CODE END 2 */

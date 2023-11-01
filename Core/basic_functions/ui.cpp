@@ -26,6 +26,7 @@ void UI::SetRBLED(int value){//0~100
 }
 
 void UI::Init(){
+	SetLED(0b1111);
 }
 void UI::Update(){
 }
@@ -36,5 +37,5 @@ int UI::GetSW2(){
 	return HAL_GPIO_ReadPin(SW2_GPIO_Port,SW2_Pin);
 }
 int UI::GetSW3(){
-	return HAL_GPIO_ReadPin(SW1_GPIO_Port,SW1_Pin);
+	return 0;//HAL_GPIO_ReadPin(SW2_GPIO_Port,SW2_Pin);
 }

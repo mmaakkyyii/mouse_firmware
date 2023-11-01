@@ -35,12 +35,12 @@ void ModeSelect::Init(){
 	pre_sw2=sw2;
 	sw3=mouse->ui->GetSW3();
 	pre_sw3=sw3;
-	printf("%d\n\r",mode_val);
+	printf("ModeSelect%d\n\r",mode_val);
 	
 
 }
 void ModeSelect::Loop(){
-	//printf("%d\n\r",mode_val);
+	printf("%d\n\r",mode_val);
 }
 void ModeSelect::Interrupt_1ms(){
 	mouse->motors->SetVoltageR(0);
@@ -55,48 +55,53 @@ void ModeSelect::Interrupt_1ms(){
 	
 	if(sw1<pre_sw1){
 		if(mode_val<15){
-			mouse->buzzer->On_ms(4000,100);
+			mouse->buzzer->On_ms(400,200);
 			mode_val++;
-			printf("%d\n\r",mode_val);
+			printf("mode:%d\n\r",mode_val);
+		}else{
+			mouse->buzzer->On_ms(600,200);
+			mode_val=0;
+			printf("mode:%d\n\r",mode_val);
+
 		}
 	}
-	if(sw3<pre_sw3){
-		if(mode_val>0){
-			mouse->buzzer->On_ms(3000,100);
-			mode_val--;
-			printf("%d\n\r",mode_val);
-		}
-	}
+//	if(sw3<pre_sw3){
+//		if(mode_val>0){
+//			mouse->buzzer->On_ms(600,200);
+//			mode_val--;
+//			printf("mode:%d\n\r",mode_val);
+//		}
+//	}
 	if(sw2<pre_sw2){
 
 		switch(mode_val){
 		case 0:
 			next_mode=serchRun_mode;
-			mouse->buzzer->On_ms(2000,500);
+			mouse->buzzer->On_ms(800,500);
 			break;
 		case 1:
 			next_mode=fastRun_mode;
-			mouse->buzzer->On_ms(2000,500);
+			mouse->buzzer->On_ms(800,500);
 			break;
 		case 2:
 			next_mode=debug_mode;
-			mouse->buzzer->On_ms(2000,500);
+			mouse->buzzer->On_ms(800,500);
 			break;
 		case 3:
 			next_mode=parameterSetting_mode;
-			mouse->buzzer->On_ms(2000,500);
+			mouse->buzzer->On_ms(800,500);
 			break;
 		case 4:
 			next_mode=sensorCheck_mode;
-			mouse->buzzer->On_ms(2000,500);
+			mouse->buzzer->On_ms(800,500);
 			break;
 		case 5:
 			next_mode=doNotRotate_mode;
-			mouse->buzzer->On_ms(2000,500);
+			mouse->buzzer->On_ms(800,500);
 			break;
 		case 6:
 			next_mode=logOutput_mode;
-			mouse->buzzer->On_ms(2000,500);
+			mouse->buzzer->On_ms(800,500);
 			break;
 		case 7:
 			break;
@@ -849,8 +854,7 @@ void LowBattery::Interrupt_1ms(){
 	mouse->motors->SetVoltageR(0);
 	mouse->motors->SetVoltageL(0);
 
-	mouse->buzzer->SetFrequency(2000);
-	mouse->buzzer->On();
+	mouse->buzzer->On_ms(800,1000);
 };
 
 /////////////////////////////

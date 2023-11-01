@@ -2,10 +2,10 @@
 #include "mouse.hpp"
 #include "MachineMode.hpp"
 
-extern Mouse ita_PiCo;
+extern Mouse mouse;
 extern MachineMode* mode; 
 void int_1ms(){
-	ita_PiCo.Interrupt_1ms();
+	mouse.Interrupt_1ms();
 	mode->CheckBattery();	
 	mode->Interrupt_1ms();
 
@@ -13,52 +13,52 @@ void int_1ms(){
 		switch(mode->GetNextMode()){
 		case idle_mode:
 			delete mode;
-			mode = new Idle(&ita_PiCo);
+			mode = new Idle(&mouse);
 			mode->Init();
 			break;
 		case lowBattery_mode:
 			delete mode;
-			mode = new LowBattery(&ita_PiCo);
+			mode = new LowBattery(&mouse);
 			mode->Init();
 			break;
 		case modeSelect_mode:
 			delete mode;
-			mode = new ModeSelect(&ita_PiCo);
+			mode = new ModeSelect(&mouse);
 			mode->Init();
 			break;
 		case serchRun_mode:
 			delete mode;
-			mode = new SerchRun(&ita_PiCo);
+			mode = new SerchRun(&mouse);
 			mode->Init();
 			break;
 		case fastRun_mode:
 			delete mode;
-			mode = new FastRun(&ita_PiCo);
+			mode = new FastRun(&mouse);
 			mode->Init();
 			break;
 		case parameterSetting_mode:
 			delete mode;
-			mode = new ParameterSetting(&ita_PiCo);
+			mode = new ParameterSetting(&mouse);
 			mode->Init();
 			break;
 		case sensorCheck_mode:
 			delete mode;
-			mode = new SensorCheck(&ita_PiCo);
+			mode = new SensorCheck(&mouse);
 			mode->Init();
 			break;
 		case debug_mode:
 			delete mode;
-			mode = new Debug(&ita_PiCo);
+			mode = new Debug(&mouse);
 			mode->Init();
 			break;
 		case doNotRotate_mode:
 			delete mode;
-			mode = new DoNotRotate(&ita_PiCo);
+			mode = new DoNotRotate(&mouse);
 			mode->Init();
 			break;
 		case logOutput_mode:
 			delete mode;
-			mode = new LogOutput(&ita_PiCo);
+			mode = new LogOutput(&mouse);
 			mode->Init();
 			break;
 		default:
@@ -70,9 +70,9 @@ void int_1ms(){
 }
 
 void int_125ums(){
-	ita_PiCo.Interrupt_125us();
+	mouse.Interrupt_125us();
 }
 
 void int_10ms(){
-	ita_PiCo.Interrupt_10ms();
+	mouse.Interrupt_10ms();
 }

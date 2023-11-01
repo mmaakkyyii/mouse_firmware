@@ -1,7 +1,7 @@
 #include "wall_sensor.hpp"
 #include "static_parameters.h"
-
-
+#include "gpio.h"
+#include "adc.h"
 
 WallSensor::WallSensor(){
 	
@@ -20,9 +20,22 @@ int WallSensor::GetError(){
 void WallSensor::Update(){
 	static int state = 0;		//�ǂݍ��ރZ���T�̃��[�e�[�V�����Ǘ��p�ϐ�
 	int i;
+	ADC_ChannelConfTypeDef sConfig = {0};
 	switch(state)
 	{
-		case 0:										//�E�Z���T�ǂݍ���
+		case 0:
+			HAL_GPIO_WritePin(LED_FR_GPIO_Port, LED_FR_Pin, GPIO_PIN_SET);
+			sConfig.Channel = 4;
+			sConfig.Rank = ADC_REGULAR_RANK_1;
+			sConfig.SamplingTime = ADC_SAMPLETIME_24CYCLES_5;
+			HAL_ADC_ConfigChannel(&hadc1, &sConfig);
+
+			HAL_ADC_Start(&hadc1); // ADC変換開始
+
+			if (HAL_ADC_PollForConversion(&hadc1, 100) == HAL_OK){
+				right= HAL_ADC_GetValue(&hadc1); // ADCの値を取得
+			}
+			HAL_GPIO_WritePin(LED_FR_GPIO_Port, LED_FR_Pin, GPIO_PIN_RESET);
 
 //			SLED_R = 1;								//LED�_��
 //			SLED_R = 0;								//LED����
@@ -51,9 +64,7 @@ void WallSensor::Update(){
 			}			
 			break;
 
-
-		case 1:		//�O���Z���T�ǂݍ���
-
+		case 1:
 //			SLED_FL = 1;							//LED�_��
 //			SLED_FL = 0;							//LED����
 
@@ -70,9 +81,7 @@ void WallSensor::Update(){
 			}
 			break;
 
-
-		case 2:		//�O�E�Z���T�ǂݍ���
-		
+		case 2:
 //			SLED_FR = 1;							//LED�_��
 //			SLED_FR = 0;							//LED����
 
@@ -89,9 +98,7 @@ void WallSensor::Update(){
 			}			
 			break;
 
-
-		case 3:		//���Z���T�ǂݍ���
-		
+		case 3:
 //			SLED_L = 1;					//LED�_��
 //			SLED_L = 0;					//LED����
 

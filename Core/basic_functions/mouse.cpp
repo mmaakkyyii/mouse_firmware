@@ -4,6 +4,10 @@
 #include "Jacobian.hpp"
 #include "delay.h"
 
+#include "usart.h"
+
+
+
 Mouse::Mouse(PID_Controler* motorR, PID_Controler* motorL, Motors* _motors, Localization* _localization, Encorders* _encorders,IMU* _imu, WallSensor* _wall_sensor, BatteryCheck* _battery_check, Buzzer* _buzzer,UI* _ui,MazeSolver* _maze_solver)
 :motorR_PID(motorR),
  motorL_PID(motorL),
@@ -17,7 +21,7 @@ Mouse::Mouse(PID_Controler* motorR, PID_Controler* motorL, Motors* _motors, Loca
  ui(_ui),
  maze_solver(_maze_solver)
  {
-//	mode=new ModeSelect();
+	//mode=new ModeSelect();
 	period_ms=1.0;
 	
 	v_max=350;
@@ -33,7 +37,7 @@ void Mouse::Init(){
 	battery_check->Init();
 	buzzer->Init();
 	motors->Init();
-	encorders->InitEncorders();
+	encorders->Init();
 	imu->Init();
 	
 	int map_data[MAZESIZE_X][MAZESIZE_Y]={0};
@@ -46,11 +50,16 @@ void Mouse::Init(){
 	maze_solver->adachi.SetMap(mouse_pos_x,mouse_pos_y,map_data[mouse_pos_x][mouse_pos_y],mouse_dir);
 
 
-	buzzer->SetFrequency(4000);	//�l�������������̎��g����ݒ�				
-	buzzer->On();		//�u�U�[�𔭐U������
-	delay_ms(100);
+	buzzer->SetFrequency(400);	//�l�������������̎��g����ݒ�
+	//buzzer->On();		//�u�U�[�𔭐U������
+
+
+	for(int i=1;i<16;i=i*2){
+		ui->SetLED(i);
+		delay_ms(200);
+	}
 	buzzer->Off();		//�u�U�[�̔��U���~������	
-	printf("Hello ita_PiCo\r\n");
+	printf("Hello mmaakkyyii mouse!\r\n");
 
 //	delete trajectory;
 //	trajectory=new Line(0.0, 180.0/2, 0.0, 0, v_max, v_max, 10000.0, 0.0);
@@ -60,6 +69,7 @@ void Mouse::Init(){
 
 }
 void Mouse::Interrupt_10ms(){
+	printf("%d\r\n",(int)(battery_check->GetBatteryVoltage_V()*1000));
 
 }
 
@@ -292,4 +302,5 @@ void Mouse::Interrupt_125us(){
 }
 
 void Mouse::Loop(){
+//printf("%d\r\n",(int)(battery_check->GetBatteryVoltage_V()*1000));
 }

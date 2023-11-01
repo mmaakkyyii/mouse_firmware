@@ -29,7 +29,7 @@ public:
 	int IsOtherMode();
 	int low_batt_count;
 	void CheckBattery(){
-		if(mouse->battery_check->GetBatteryVoltage_V() < 7){
+		if(mouse->battery_check->GetBatteryVoltage_V() < 3.5){
 			low_batt_count++;
 		}else{
 			low_batt_count=0;

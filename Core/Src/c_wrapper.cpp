@@ -20,6 +20,7 @@
 #include "ui.hpp"
 #include "MazeSolver.hpp"
 #include "MachineMode.hpp"
+#include "interrupt_func.h"
 
 PID_Controler PID_motorL(0.003,0.0005,0,1);
 PID_Controler PID_motorR(0.003,0.0005,0,1);
@@ -39,16 +40,25 @@ MachineMode* mode;
 
 
 void Init(){
-
+	mode=new ModeSelect(&mouse);
+	mouse.Init();
 }
 
 void Loop(){
+	mouse.Loop();
+	mode->Loop();
 
 }
 
+void Interrupt125us(){
+	int_125ums();
+	//mouse.Interrupt_125us();
+}
 void Interrupt1ms(){
-
+	int_1ms();
+	//mouse.Interrupt_1ms();
 }
-void Interrupt100us(){
-
+void Interrupt10ms(){
+	int_10ms();
+	//mouse.Interrupt_10ms();
 }

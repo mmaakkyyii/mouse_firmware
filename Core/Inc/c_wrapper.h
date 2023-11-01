@@ -16,8 +16,9 @@ void Init();
 
 void Loop();
 
+void Interrupt125us();
 void Interrupt1ms();
-void Interrupt100us();
+void Interrupt10ms();
 
 #if __cplusplus
 };

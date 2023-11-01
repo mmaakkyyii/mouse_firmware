@@ -37,7 +37,7 @@ private:
 
 public:
 	Encorders(int _period_ms);
-	void InitEncorders();
+	void Init();
 	void Update();
 	float GetVelociryL_mm_s();
 	float GetVelociryR_mm_s();
