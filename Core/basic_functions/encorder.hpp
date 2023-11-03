@@ -32,8 +32,6 @@ private:
 
 	float GetRPSL();
 	float GetRPSR();
-	void InterruptL();
-	void InterruptR();
 
 public:
 	Encorders(int _period_ms);
@@ -44,6 +42,9 @@ public:
 
 	int GetPulseL();
 	int GetPulseR();
+
+	void InterruptL();
+	void InterruptR();
 
 };
 

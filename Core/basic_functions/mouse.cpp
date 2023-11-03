@@ -69,7 +69,12 @@ void Mouse::Init(){
 
 }
 void Mouse::Interrupt_10ms(){
-	printf("%d\r\n",(int)(battery_check->GetBatteryVoltage_V()*1000));
+	printf("%d,%d,%d,%d\r\n",wall_sensor->GetLeft(),wall_sensor->GetFrontL(),wall_sensor->GetFrontR(),wall_sensor->GetRight());
+	int data[3];
+	imu->GetGyroRaw(data);
+//	printf("%d,%d,%d\r\n",);
+//	printf("%d,%d,%d\r\n",data[0],data[1],data[2]);
+//	printf("%d,%d\r\n",encorders->GetPulseL(),encorders->GetPulseR());
 
 }
 
@@ -280,7 +285,7 @@ void Mouse::SerchRunMode(){
 
 int count=0;
 void Mouse::Interrupt_1ms(){
-	encorders->Update();
+	//encorders->Update();
 	buzzer->Update();
 	if(count>1){
 		count=0;	

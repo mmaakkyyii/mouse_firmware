@@ -5,6 +5,8 @@
 extern "C"{
 #endif
 
+void int_spi1();
+void int_spi2();
 void int_1ms();
 void int_10ms();
 void int_125ums();

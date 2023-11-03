@@ -36,8 +36,8 @@ void Encorders::Update(){
 
 	tx_dataL[0]=0;
 	tx_dataR[0]=0;
-	HAL_SPI_TransmitReceive_DMA(&hspi2, (uint8_t *)tx_dataL, (uint8_t *)&angle_dataL, 1);
-	HAL_SPI_TransmitReceive_DMA(&hspi3, (uint8_t *)tx_dataR, (uint8_t *)&angle_dataR, 1);
+	//HAL_SPI_TransmitReceive_DMA(&hspi2, (uint8_t *)tx_dataL, (uint8_t *)&angle_dataL, 1);
+	//HAL_SPI_TransmitReceive_DMA(&hspi1, (uint8_t *)tx_dataR, (uint8_t *)&angle_dataR, 1);
 
 }
 

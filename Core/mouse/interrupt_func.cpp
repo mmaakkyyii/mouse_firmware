@@ -76,3 +76,18 @@ void int_125ums(){
 void int_10ms(){
 	mouse.Interrupt_10ms();
 }
+
+void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi){
+	if(hspi==&hspi1){
+		int_spi1();
+	}else if(hspi==&hspi2){
+		int_spi2();
+	}
+}
+
+void int_spi1(){
+	mouse.encorders->InterruptR();
+}
+void int_spi2(){
+	mouse.encorders->InterruptL();
+}

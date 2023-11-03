@@ -17,114 +17,94 @@ int WallSensor::GetError(){
 	if(!is_controlR && !is_controlL)error=0;
 	return error;
 }
+
+uint16_t ReadADC(int ch){
+
+	ADC_ChannelConfTypeDef sConfig = {0};
+
+	switch(ch){
+	case 1:
+		sConfig.Channel = ADC_CHANNEL_1;
+		sConfig.Rank = ADC_REGULAR_RANK_1;
+		break;
+	case 2:
+		sConfig.Channel = ADC_CHANNEL_2;
+		sConfig.Rank = ADC_REGULAR_RANK_2;
+		break;
+	case 3:
+		sConfig.Channel = ADC_CHANNEL_3;
+		sConfig.Rank = ADC_REGULAR_RANK_3;
+		break;
+	case 4:
+		sConfig.Channel = ADC_CHANNEL_4;
+		sConfig.Rank = ADC_REGULAR_RANK_4;
+		break;
+	}
+	sConfig.SamplingTime = ADC_SAMPLETIME_12CYCLES_5;
+	HAL_ADC_ConfigChannel(&hadc1, &sConfig);
+	HAL_ADC_Start(&hadc1); // ADC変換開始
+
+if (HAL_ADC_PollForConversion(&hadc1, 20) == HAL_OK){
+		return HAL_ADC_GetValue(&hadc1); // ADCの値を取得
+	}
+	return -1;
+}
+
 void WallSensor::Update(){
 	static int state = 0;		//�ǂݍ��ރZ���T�̃��[�e�[�V�����Ǘ��p�ϐ�
-	int i;
-	ADC_ChannelConfTypeDef sConfig = {0};
+	//int i;
 	switch(state)
 	{
 		case 0:
-			HAL_GPIO_WritePin(LED_FR_GPIO_Port, LED_FR_Pin, GPIO_PIN_SET);
-			sConfig.Channel = 4;
-			sConfig.Rank = ADC_REGULAR_RANK_1;
-			sConfig.SamplingTime = ADC_SAMPLETIME_24CYCLES_5;
-			HAL_ADC_ConfigChannel(&hadc1, &sConfig);
-
-			HAL_ADC_Start(&hadc1); // ADC変換開始
-
-			if (HAL_ADC_PollForConversion(&hadc1, 100) == HAL_OK){
-				right= HAL_ADC_GetValue(&hadc1); // ADCの値を取得
-			}
-			HAL_GPIO_WritePin(LED_FR_GPIO_Port, LED_FR_Pin, GPIO_PIN_RESET);
-
-//			SLED_R = 1;								//LED�_��
-//			SLED_R = 0;								//LED����
-
+			HAL_GPIO_WritePin(LED_R_GPIO_Port, LED_R_Pin, GPIO_PIN_SET);
+			right= ReadADC(2);
+			HAL_GPIO_WritePin(LED_R_GPIO_Port, LED_R_Pin, GPIO_PIN_RESET);
 			pre_right = right;			//�ߋ��̒l��ۑ�
-//			right = S12AD.ADDR6;				//�l��ۑ�
-
-			if(right > TH_SEN_R)			//�ǂ̗L���𔻒f
-			{
-				is_wallR = 1;				//�E�ǂ���
-			}
-			else
-			{
-				is_wallR = 0;				//�E�ǂȂ�
-			}
+			if(right > TH_SEN_R)is_wallR = 1;
+			else				is_wallR = 0;
 			
-			if(right > TH_CTRL_R)		//����������邩�ۂ��𔻒f
-			{
+			if(right > TH_CTRL_R){
 				error_R = right - REF_SEN_R;	//�����������ꍇ�͕΍����v�Z
 				is_controlR = 1;			//�E�Z���T�𐧌�Ɏg��
-			}
-			else
-			{
+			}else{
 				error_R = 0;					//����Ɏg��Ȃ��ꍇ�͕΍���0�ɂ��Ă���
 				is_controlR = 0;			//�E�Z���T�𐧌�Ɏg��Ȃ�
 			}			
 			break;
 
 		case 1:
-//			SLED_FL = 1;							//LED�_��
-//			SLED_FL = 0;							//LED����
-
+			HAL_GPIO_WritePin(LED_FL_GPIO_Port, LED_FL_Pin, GPIO_PIN_SET);
+			frontL= ReadADC(4);//4
+			HAL_GPIO_WritePin(LED_FL_GPIO_Port, LED_FL_Pin, GPIO_PIN_RESET);
 			pre_frontL = frontL;			//�ߋ��̒l��ۑ�
-//			frontL = S12AD.ADDR4;				//�l��ۑ�
-
-			if(frontL > TH_SEN_FL)		//�ǂ̗L���𔻒f
-			{
-				is_wallFL = 1;				//���O�ǂ���
-			}
-			else
-			{
-				is_wallFL = 0;				//���O�ǂȂ�
-			}
+			if(frontL > TH_SEN_FL)is_wallFL = 1;
+			else				  is_wallFL = 0;
 			break;
 
 		case 2:
-//			SLED_FR = 1;							//LED�_��
-//			SLED_FR = 0;							//LED����
-
-			pre_frontR = frontR;			//�ߋ��̒l��ۑ�
-//			frontR = S12AD.ADDR9;				//�l��ۑ�
-
-			if(frontR > TH_SEN_FR)		//�ǂ̗L���𔻒f
-			{
-				is_wallFR = 1;				//�E�O�ǂ���
-			}
-			else
-			{
-				is_wallFR = 0;				//�E�O�ǂȂ�
-			}			
+			HAL_GPIO_WritePin(LED_FR_GPIO_Port, LED_FR_Pin, GPIO_PIN_SET);
+			frontR= ReadADC(1);//
+			HAL_GPIO_WritePin(LED_FR_GPIO_Port, LED_FR_Pin, GPIO_PIN_RESET);
+			pre_frontR = frontR;
+			if(frontR > TH_SEN_FR)is_wallFR = 1;
+			else				  is_wallFR = 0;
 			break;
 
 		case 3:
-//			SLED_L = 1;					//LED�_��
-//			SLED_L = 0;					//LED����
-
+			HAL_GPIO_WritePin(LED_L_GPIO_Port, LED_L_Pin, GPIO_PIN_SET);
+			left= ReadADC(3);
+			HAL_GPIO_WritePin(LED_L_GPIO_Port, LED_L_Pin, GPIO_PIN_RESET);
 			pre_left = left;			//�ߋ��̒l��ۑ�
-//			left = S12AD.ADDR2;				//�l��ۑ�
+			if(left > TH_SEN_L)is_wallL = 1;
+			else			   is_wallL = 0;
 			
-			if(left > TH_SEN_L)			//�ǂ̗L���𔻒f
-			{
-				is_wallL = 1;				//���ǂ���
-			}
-			else
-			{
-				is_wallL = 0;				//���ǂȂ�
-			}
-			
-			if(left > TH_CTRL_L)		//����������邩�ۂ��𔻒f
-			{
+			if(left > TH_CTRL_L){
 				error_L = left - REF_SEN_L;	//�����������ꍇ�͕΍����v�Z����
 				is_controlL = 1;			//���Z���T�𐧌�Ɏg��
-			}
-			else
-			{
+			}else{
 				error_L = 0;					//����Ɏg��Ȃ��ꍇ�͕΍���0�ɂ��Ă���
 				is_controlL = 0;			//���Z���T�𐧌�Ɏg��Ȃ�
 			}
-
 			break;
 	}
 	
