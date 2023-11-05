@@ -69,7 +69,7 @@ void Mouse::Init(){
 
 }
 void Mouse::Interrupt_10ms(){
-	printf("%d,%d,%d,%d\r\n",wall_sensor->GetLeft(),wall_sensor->GetFrontL(),wall_sensor->GetFrontR(),wall_sensor->GetRight());
+	printf("%4d,%4d,%4d,%4d\r\n",wall_sensor->GetLeft(),wall_sensor->GetFrontL(),wall_sensor->GetFrontR(),wall_sensor->GetRight());
 	int data[3];
 	imu->GetGyroRaw(data);
 //	printf("%d,%d,%d\r\n",);

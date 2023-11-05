@@ -21,32 +21,41 @@ int WallSensor::GetError(){
 uint16_t ReadADC(int ch){
 
 	ADC_ChannelConfTypeDef sConfig = {0};
+	sConfig.Rank = ADC_REGULAR_RANK_1;
 
 	switch(ch){
 	case 1:
 		sConfig.Channel = ADC_CHANNEL_1;
-		sConfig.Rank = ADC_REGULAR_RANK_1;
+		//sConfig.Rank = ADC_REGULAR_RANK_1;
 		break;
 	case 2:
 		sConfig.Channel = ADC_CHANNEL_2;
-		sConfig.Rank = ADC_REGULAR_RANK_2;
+		//sConfig.Rank = ADC_REGULAR_RANK_2;
 		break;
 	case 3:
 		sConfig.Channel = ADC_CHANNEL_3;
-		sConfig.Rank = ADC_REGULAR_RANK_3;
+		//sConfig.Rank = ADC_REGULAR_RANK_3;
 		break;
 	case 4:
 		sConfig.Channel = ADC_CHANNEL_4;
-		sConfig.Rank = ADC_REGULAR_RANK_4;
+		//sConfig.Rank = ADC_REGULAR_RANK_4;
 		break;
 	}
 	sConfig.SamplingTime = ADC_SAMPLETIME_12CYCLES_5;
-	HAL_ADC_ConfigChannel(&hadc1, &sConfig);
-	HAL_ADC_Start(&hadc1); // ADC変換開始
-
-if (HAL_ADC_PollForConversion(&hadc1, 20) == HAL_OK){
-		return HAL_ADC_GetValue(&hadc1); // ADCの値を取得
+	if(HAL_ADC_ConfigChannel(&hadc1, &sConfig) !=HAL_OK){
+		Error_Handler();
 	}
+	if(HAL_ADC_Start(&hadc1) == HAL_OK){
+		if (HAL_ADC_PollForEvent(&hadc1,ADC_EOSMP_EVENT, 200) == HAL_OK){
+			//while(HAL_ADC_GetState(&hadc1)==HAL_ADC_STATE_BUSY){
+			//}
+			uint16_t data=HAL_ADC_GetValue(&hadc1);
+			//HAL_ADC_Stop(&hadc1);
+			return data;
+		}
+
+	}
+
 	return -1;
 }
 
@@ -55,7 +64,7 @@ void WallSensor::Update(){
 	//int i;
 	switch(state)
 	{
-		case 0:
+		case 1:
 			HAL_GPIO_WritePin(LED_R_GPIO_Port, LED_R_Pin, GPIO_PIN_SET);
 			right= ReadADC(2);
 			HAL_GPIO_WritePin(LED_R_GPIO_Port, LED_R_Pin, GPIO_PIN_RESET);
@@ -72,7 +81,7 @@ void WallSensor::Update(){
 			}			
 			break;
 
-		case 1:
+		case 3:
 			HAL_GPIO_WritePin(LED_FL_GPIO_Port, LED_FL_Pin, GPIO_PIN_SET);
 			frontL= ReadADC(4);//4
 			HAL_GPIO_WritePin(LED_FL_GPIO_Port, LED_FL_Pin, GPIO_PIN_RESET);
@@ -81,7 +90,7 @@ void WallSensor::Update(){
 			else				  is_wallFL = 0;
 			break;
 
-		case 2:
+		case 0:
 			HAL_GPIO_WritePin(LED_FR_GPIO_Port, LED_FR_Pin, GPIO_PIN_SET);
 			frontR= ReadADC(1);//
 			HAL_GPIO_WritePin(LED_FR_GPIO_Port, LED_FR_Pin, GPIO_PIN_RESET);
@@ -90,7 +99,7 @@ void WallSensor::Update(){
 			else				  is_wallFR = 0;
 			break;
 
-		case 3:
+		case 2:
 			HAL_GPIO_WritePin(LED_L_GPIO_Port, LED_L_Pin, GPIO_PIN_SET);
 			left= ReadADC(3);
 			HAL_GPIO_WritePin(LED_L_GPIO_Port, LED_L_Pin, GPIO_PIN_RESET);
