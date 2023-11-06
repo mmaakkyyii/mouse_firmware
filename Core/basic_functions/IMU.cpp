@@ -13,6 +13,7 @@ IMU::IMU(){
 }
 
 void IMU::Init(){
+	uint16_t who_am_i=Read(WHO_AM_I_ADDR);
 	Write(0x4E,0x0f);//Gyro mode LN ACCEL mode LN
 	HAL_Delay(10);
 	uint8_t gyro_config0=Read(0x4f);
@@ -80,6 +81,8 @@ void IMU::Write(uint8_t addr, uint8_t data){
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);}
 
 void IMU::Update(){
+	uint16_t who_am_i=Read(WHO_AM_I_ADDR);
+
 	uint16_t _imu_h=0;
 	uint16_t _imu_l=0;
 	uint16_t _imu=0;
@@ -89,9 +92,9 @@ void IMU::Update(){
 	//_imu=_imu_h<<8|_imu_l;
 	uint8_t ddata[3];
 	Read(GYRO_XOUT_H_ADDR,gyro_data_8bit);
-	gyro_data[0]=(uint16_t)gyro_data_8bit[0]<<8 | (uint16_t)gyro_data_8bit[1];
-	gyro_data[1]=(uint16_t)gyro_data_8bit[2]<<8 | (uint16_t)gyro_data_8bit[3];
-	gyro_data[2]=(uint16_t)gyro_data_8bit[4]<<8 | (uint16_t)gyro_data_8bit[5];
+	gyro_data[0]=(int16_t) ((uint16_t)gyro_data_8bit[0]<<8 | (uint16_t)gyro_data_8bit[1]);
+	gyro_data[1]=(int16_t) ((uint16_t)gyro_data_8bit[2]<<8 | (uint16_t)gyro_data_8bit[3]);
+	gyro_data[2]=(int16_t) ((uint16_t)gyro_data_8bit[4]<<8 | (uint16_t)gyro_data_8bit[5]);
 
 /*
 	if(calibration_flag){

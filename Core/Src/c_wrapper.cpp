@@ -45,7 +45,7 @@ void Init(){
 }
 
 void Loop(){
-	mouse.Loop();
+	//mouse.Loop();
 	mode->Loop();
 
 }

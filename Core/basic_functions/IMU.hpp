@@ -32,7 +32,7 @@ private:
 	const int GYRO_XOUT_H_ADDR = 0x25;
 	const int WHO_AM_I_ADDR = 0x75;
 
-	uint16_t gyro_data[3];
+	int16_t gyro_data[3];
 	uint8_t gyro_data_8bit[14];
 	int acc_data[3];
 	const float GYRO_FS=2000;

@@ -72,9 +72,9 @@ void Mouse::Interrupt_10ms(){
 //	printf("%4d,%4d,%4d,%4d\r\n",wall_sensor->GetLeft(),wall_sensor->GetFrontL(),wall_sensor->GetFrontR(),wall_sensor->GetRight());
 	int data[3];
 	imu->GetGyroRaw(data);
-//	printf("%d,%d,%d\r\n",);
-//	printf("%d,%d,%d\r\n",data[0],data[1],data[2]);
-	printf("%d,%d\r\n",(int)encorders->GetVelociryL_mm_s(),(int)encorders->GetVelociryR_mm_s());
+//	printf("batt:%d\r\n",(int)(battery_check->GetBatteryVoltage_V()*1000));
+	printf("%5d,%5d,%5d\r\n",data[0],data[1],data[2]);
+//	printf("%d,%d\r\n",(int)encorders->GetVelociryL_mm_s(),(int)encorders->GetVelociryR_mm_s());
 
 }
 
@@ -289,7 +289,7 @@ void Mouse::Interrupt_1ms(){
 	buzzer->Update();
 	if(count>1){
 		count=0;	
-		//imu->Update();
+		imu->Update();
 	}else{
 		count++;
 	}
