@@ -23,7 +23,7 @@ void Motors::InitMotorL(){
 }
 
 
-void Motors::SetDutyPWMR(unsigned short duty){//max 1000
+void Motors::SetDutyPWML(unsigned short duty){//max 1000
 	htim1.Instance->CCR2=duty;
 
 //	TIM_OC_InitTypeDef sConfigOC;
@@ -37,7 +37,7 @@ void Motors::SetDutyPWMR(unsigned short duty){//max 1000
 	HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_2);
 
 }
-void Motors::SetDutyPWML(unsigned short duty){
+void Motors::SetDutyPWMR(unsigned short duty){
 	htim1.Instance->CCR4=duty;
 //	TIM_OC_InitTypeDef sConfigOC;
 //
@@ -51,22 +51,22 @@ void Motors::SetDutyPWML(unsigned short duty){
 }
 
 
-void Motors::SetVoltageR(float v){
-	if(v>0){
-		HAL_GPIO_WritePin(AIN2_GPIO_Port, AIN1_Pin, GPIO_PIN_SET);
-	}else{
-		v=-v;
-		HAL_GPIO_WritePin(AIN2_GPIO_Port, AIN1_Pin, GPIO_PIN_RESET);
-	}
-	SetDutyPWMR(v/Vin*1000);
-
-}
 void Motors::SetVoltageL(float v){
 	if(v>0){
-		HAL_GPIO_WritePin(BIN2_GPIO_Port, BIN1_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(AIN1_GPIO_Port, AIN1_Pin, GPIO_PIN_SET);
 	}else{
 		v=-v;
-		HAL_GPIO_WritePin(BIN2_GPIO_Port, BIN1_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(AIN1_GPIO_Port, AIN1_Pin, GPIO_PIN_RESET);
 	}
 	SetDutyPWML(v/Vin*1000);
+
+}
+void Motors::SetVoltageR(float v){
+	if(v>0){
+		HAL_GPIO_WritePin(BIN1_GPIO_Port, BIN1_Pin, GPIO_PIN_SET);
+	}else{
+		v=-v;
+		HAL_GPIO_WritePin(BIN1_GPIO_Port, BIN1_Pin, GPIO_PIN_RESET);
+	}
+	SetDutyPWMR(v/Vin*1000);
 }

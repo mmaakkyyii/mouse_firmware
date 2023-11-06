@@ -954,7 +954,7 @@ void SensorCheck::Loop(){
 	mouse->imu->GetGyroRaw(gyro_raw);
 
 //	printf("%4d,%4d,%4d\r\n",mouse->imu->GetGzOffset(),(int)( gyro_raw[2]),(int)(1000*gyro[2]));
-//*
+/*
 	printf("%5d,%5d,%d,%d,%d,%d,%d,%5d,%5d\r\n",
 		(int)(gyro_raw[2]),
 		(int)(gyro[2]),
@@ -973,19 +973,28 @@ void SensorCheck::Init(){
 	printf("Start Sensor Check mode!\n\r");
 }
 void SensorCheck::Interrupt_1ms(){
-	static float v=0;
-	static int dir=1;
-	if(dir==1){
-		if(v<1)	v+=0.001;
-		else dir=-1;
-	}else{
-		if(v>-1)v-=0.001;
-		else dir=1;
+//	static float v=0;
+//	static int dir=1;
+//	if(dir==1){
+//		if(v<1)	v+=0.001;
+//		else dir=-1;
+//	}else{
+//		if(v>-1)v-=0.001;
+//		else dir=1;
+//
+//	}
+	mouse->motorR_PID->SetTarget(500);
+	mouse->motorL_PID->SetTarget(500);
 
-	}
+	float velocity_r=mouse->encorders->GetVelociryR_mm_s();
+	float velocity_l=mouse->encorders->GetVelociryL_mm_s();
+	float V_r=mouse->motorR_PID->Update(velocity_r);
+//	float V_l=mouse->motorL_PID->Update(velocity_l);
+	if(V_r>0.6)V_r=0.6;
+	if(V_r<-0.6)V_r=-0.6;
+	mouse->motors->SetVoltageR(V_r);
+	mouse->motors->SetVoltageL(0);
 
-	mouse->motors->SetVoltageL(v);
-	mouse->motors->SetVoltageR(v);
 	mouse->ui->SetLED( mouse->wall_sensor->GetWallR() <<3 |
 			mouse->wall_sensor->GetWallFR()<<2 |
 			mouse->wall_sensor->GetWallFL()<<1 |

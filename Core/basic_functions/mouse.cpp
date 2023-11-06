@@ -51,15 +51,15 @@ void Mouse::Init(){
 
 
 	buzzer->SetFrequency(400);	//�l�������������̎��g����ݒ�
-	//buzzer->On();		//�u�U�[�𔭐U������
+	buzzer->On();		//�u�U�[�𔭐U������
 
 
 	for(int i=1;i<16;i=i*2){
 		ui->SetLED(i);
-		delay_ms(200);
+		delay_ms(25);
 	}
 	buzzer->Off();		//�u�U�[�̔��U���~������	
-	printf("Hello mmaakkyyii mouse!\r\n");
+//	printf("Hello mmaakkyyii mouse!\r\n");
 
 //	delete trajectory;
 //	trajectory=new Line(0.0, 180.0/2, 0.0, 0, v_max, v_max, 10000.0, 0.0);
@@ -69,12 +69,12 @@ void Mouse::Init(){
 
 }
 void Mouse::Interrupt_10ms(){
-	//printf("%4d,%4d,%4d,%4d\r\n",wall_sensor->GetLeft(),wall_sensor->GetFrontL(),wall_sensor->GetFrontR(),wall_sensor->GetRight());
+//	printf("%4d,%4d,%4d,%4d\r\n",wall_sensor->GetLeft(),wall_sensor->GetFrontL(),wall_sensor->GetFrontR(),wall_sensor->GetRight());
 	int data[3];
 	imu->GetGyroRaw(data);
 //	printf("%d,%d,%d\r\n",);
 //	printf("%d,%d,%d\r\n",data[0],data[1],data[2]);
-	printf("%d,%d\r\n",encorders->GetPulseL(),encorders->GetPulseR());
+	printf("%d,%d\r\n",(int)encorders->GetVelociryL_mm_s(),(int)encorders->GetVelociryR_mm_s());
 
 }
 

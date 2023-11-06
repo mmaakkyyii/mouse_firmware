@@ -5,7 +5,7 @@
 
 class Encorders{
 private:
-	const float PPR=16384;//4096*4;
+	const float PPR=4096;//12 bit;
 	const float gear_ratio=35.0/9.0;
 	const float radius_mm;
 	float pluse2mm;
