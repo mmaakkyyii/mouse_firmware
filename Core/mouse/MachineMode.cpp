@@ -973,11 +973,23 @@ void SensorCheck::Init(){
 	printf("Start Sensor Check mode!\n\r");
 }
 void SensorCheck::Interrupt_1ms(){
+	static float v=0;
+	static int dir=1;
+	if(dir==1){
+		if(v<1)	v+=0.001;
+		else dir=-1;
+	}else{
+		if(v>-1)v-=0.001;
+		else dir=1;
 
-	mouse->ui->SetLED( mouse->wall_sensor->GetWallL() <<3 |  
-			mouse->wall_sensor->GetWallFL()<<2 |
-			mouse->wall_sensor->GetWallFR()<<1 |  
-			mouse->wall_sensor->GetWallR()       );
+	}
+
+	mouse->motors->SetVoltageL(v);
+	mouse->motors->SetVoltageR(v);
+	mouse->ui->SetLED( mouse->wall_sensor->GetWallR() <<3 |
+			mouse->wall_sensor->GetWallFR()<<2 |
+			mouse->wall_sensor->GetWallFL()<<1 |
+			mouse->wall_sensor->GetWallL()       );
 
 
 	if(mouse->ui->GetSW1()==0){

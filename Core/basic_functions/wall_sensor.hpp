@@ -19,18 +19,18 @@ public:
 	int GetWallFL(){return is_wallFL;}
 
 private:
-	static const int WAITLOOP_SLED = 300;	//LED‚рЊх‚з‚№‚Д‚©‚зAD•ПЉ·‚рЉJЋn‚·‚й‚Ь‚Е‚МЋћЉФ‰Т‚¬—p’иђ”
+	static const int WAITLOOP_SLED = 300;	//LEDпїЅпїЅпїЅпїЅпїЅз‚№пїЅД‚пїЅпїЅпїЅADпїЅПЉпїЅпїЅпїЅпїЅJпїЅnпїЅпїЅпїЅпїЅЬ‚Е‚МЋпїЅпїЅФ‰Т‚пїЅпїЅpпїЅиђ”
 
-	static const int REF_SEN_R = 451;//380;	//ѓ}ѓEѓX‚р–АH’†‰›‚Й’u‚ў‚ЅЋћ‚МѓZѓ“ѓT‚М’l ‰пЏк(451)
-	static const int REF_SEN_L = 435;//413;	//ѓ}ѓEѓX‚р–АH’†‰›‚Й’u‚ў‚ЅЋћ‚МѓZѓ“ѓT‚М’l ‰пЏк(435)
+	static const int REF_SEN_R = 451;//380;	//пїЅ}пїЅEпїЅXпїЅпїЅпїЅпїЅHпїЅпїЅпїЅпїЅпїЅЙ’uпїЅпїЅпїЅпїЅпїЅпїЅпїЅМѓZпїЅпїЅпїЅTпїЅМ’l пїЅпїЅпїЅ(451)
+	static const int REF_SEN_L = 435;//413;	//пїЅ}пїЅEпїЅXпїЅпїЅпїЅпїЅHпїЅпїЅпїЅпїЅпїЅЙ’uпїЅпїЅпїЅпїЅпїЅпїЅпїЅМѓZпїЅпїЅпїЅTпїЅМ’l пїЅпїЅпїЅ(435)
 
-	static const int TH_CTRL_R = 200;	//•З‚Є‚ ‚й‚©”Ы‚©‚Ми‡’l
-	static const int TH_CTRL_L = 200;	//•З‚Є‚ ‚й‚©”Ы‚©‚Ми‡’l
+	static const int TH_CTRL_R = 200;	//пїЅЗ‚пїЅпїЅпїЅпїЅй‚©пїЅЫ‚пїЅпїЅпїЅи‡’l
+	static const int TH_CTRL_L = 200;	//пїЅЗ‚пїЅпїЅпїЅпїЅй‚©пїЅЫ‚пїЅпїЅпїЅи‡’l
 
-	static const int TH_SEN_R = 150;	//•З‚Є‚ ‚й‚©”Ы‚©‚Ми‡’l
-	static const int TH_SEN_L = 155;	//•З‚Є‚ ‚й‚©”Ы‚©‚Ми‡’l
-	static const int TH_SEN_FR = 200;	//•З‚Є‚ ‚й‚©”Ы‚©‚Ми‡’l
-	static const int TH_SEN_FL = 170;	//•З‚Є‚ ‚й‚©”Ы‚©‚Ми‡’l
+	static const int TH_SEN_R = 800;	//пїЅЗ‚пїЅпїЅпїЅпїЅй‚©пїЅЫ‚пїЅпїЅпїЅи‡’l
+	static const int TH_SEN_L = 855;	//пїЅЗ‚пїЅпїЅпїЅпїЅй‚©пїЅЫ‚пїЅпїЅпїЅи‡’l
+	static const int TH_SEN_FR = 800;	//пїЅЗ‚пїЅпїЅпїЅпїЅй‚©пїЅЫ‚пїЅпїЅпїЅи‡’l
+	static const int TH_SEN_FL = 870;	//пїЅЗ‚пїЅпїЅпїЅпїЅй‚©пїЅЫ‚пїЅпїЅпїЅи‡’l
 
 
 
