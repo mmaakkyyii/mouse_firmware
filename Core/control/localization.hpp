@@ -4,13 +4,13 @@
 
 class Localization{
 public:
-	Localization(float _x, float _y, float _theta, float _period, Encorders* _encorders);
+	Localization(float _x, float _y, float _theta, float _period_ms, Encorders* _encorders);
 	void Update();
 	void GetPosition(float* _x, float* _y, float* _theta);
 	float GetTheta();
 private:
 	Encorders* encorders;
-	float period;
+	float period_ms;
 	float x;
 	float y;
 	float theta;

@@ -935,21 +935,32 @@ void SensorCheck::Loop(){
 //	printf("\x1b[0;0H");	//�J�[�\����0,0�Ɉړ�
 	mouse->imu->GetGyro(gyro);
 	mouse->imu->GetGyroRaw(gyro_raw);
+	float _x,_y,_theta;
+	mouse->localization->GetPosition(&_x, &_y, &_theta);
 
 //	printf("%4d,%4d,%4d\r\n",mouse->imu->GetGzOffset(),(int)( gyro_raw[2]),(int)(1000*gyro[2]));
-//*
-	printf("%5d,%5d,%d,%d,%d,%d,%d,%5d,%5d\r\n",
-		(int)(gyro_raw[2]),
-		(int)(gyro[2]),
-		(int)(1000*mouse->battery_check->GetBatteryVoltage_V()),
-		mouse->wall_sensor->GetLeft(),
-		mouse->wall_sensor->GetFrontL(),
-		mouse->wall_sensor->GetFrontR(),
-		mouse->wall_sensor->GetRight(),
-		(int)(mouse->encorders->GetVelociryL_mm_s()),
-		(int)(mouse->encorders->GetVelociryR_mm_s())
-		);
-//*/
+	//*
+		printf("%5d,%5d,%4d,%4d,%4d\r\n",
+			(int)(_x),
+			(int)(_y),
+			(int)(_theta*180/3.14),
+			(int)(mouse->encorders->GetVelociryL_mm_s()),
+			(int)(mouse->encorders->GetVelociryR_mm_s())
+			);
+	//*/
+/*
+			printf("%5d,%5d,%d,%d,%d,%d,%d,%5d,%5d\r\n",
+				(int)(_x),
+				(int)(_y),
+				(int)(1000*mouse->battery_check->GetBatteryVoltage_V()),
+				mouse->wall_sensor->GetLeft(),
+				mouse->wall_sensor->GetFrontL(),
+				mouse->wall_sensor->GetFrontR(),
+				mouse->wall_sensor->GetRight(),
+				(int)(mouse->encorders->GetVelociryL_mm_s()),
+				(int)(mouse->encorders->GetVelociryR_mm_s())
+				);
+		//*/
 }
 
 void SensorCheck::Init(){
@@ -958,16 +969,7 @@ void SensorCheck::Init(){
 	printf("Start Sensor Check mode!\n\r");
 }
 void SensorCheck::Interrupt_1ms(){
-//	static float v=0;
-//	static int dir=1;
-//	if(dir==1){
-//		if(v<1)	v+=0.001;
-//		else dir=-1;
-//	}else{
-//		if(v>-1)v-=0.001;
-//		else dir=1;
-//
-//	}
+
 	if(mouse->wall_sensor->GetWallFR() || mouse->wall_sensor->GetWallFL()){
 			mouse->motorR_PID->SetTarget(0);
 			mouse->motorL_PID->SetTarget(0);
@@ -987,8 +989,8 @@ void SensorCheck::Interrupt_1ms(){
 	if(V_l<-v_max)V_l=-v_max;
 //	mouse->motors->SetVoltageR(V_r);
 //	mouse->motors->SetVoltageL(V_l);
-	mouse->motors->SetVoltageR(0.4);
-	mouse->motors->SetVoltageL(0.4);
+//	mouse->motors->SetVoltageR(0.4);
+//	mouse->motors->SetVoltageL(0.4);
 
 	mouse->ui->SetLED( mouse->wall_sensor->GetWallR() <<3 |
 			mouse->wall_sensor->GetWallFR()<<2 |

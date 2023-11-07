@@ -22,12 +22,12 @@
 #include "MachineMode.hpp"
 #include "interrupt_func.h"
 
-PID_Controler PID_motorL(0.0005,0.00003,0,1);
-PID_Controler PID_motorR(0.0005,0.00004,0,1);
+PID_Controler PID_motorL(0.0005,0.00003,0,CONTROL_PERIOD_ms);
+PID_Controler PID_motorR(0.0005,0.00004,0,CONTROL_PERIOD_ms);
 Motors motors;
 Encorders encorders(CONTROL_PERIOD_ms);
 IMU imu;
-Localization localization(0,0,0,1,&encorders);
+Localization localization(0,0,0,CONTROL_PERIOD_ms,&encorders);
 WallSensor wall_sensor;
 BatteryCheck battery_check;
 Buzzer buzzer(1);

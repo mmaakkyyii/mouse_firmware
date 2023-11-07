@@ -293,8 +293,8 @@ void Mouse::Interrupt_1ms(){
 	}else{
 		count++;
 	}
-//	localization->Update();
-//	localization->GetPosition(&current_x,&current_y,&current_theta);
+	localization->Update();
+	//localization->GetPosition(&current_x,&current_y,&current_theta);
 
 }
 
