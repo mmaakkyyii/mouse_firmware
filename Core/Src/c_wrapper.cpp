@@ -22,8 +22,8 @@
 #include "MachineMode.hpp"
 #include "interrupt_func.h"
 
-PID_Controler PID_motorL(0.0002,0.0001,0,1);
-PID_Controler PID_motorR(0.0002,0.0001,0,1);
+PID_Controler PID_motorL(0.0001,0.00001,0,1);
+PID_Controler PID_motorR(0.0001,0.00001,0,1);
 Motors motors;
 Encorders encorders(CONTROL_PERIOD_ms);
 IMU imu;

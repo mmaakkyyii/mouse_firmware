@@ -983,17 +983,21 @@ void SensorCheck::Interrupt_1ms(){
 //		else dir=1;
 //
 //	}
-	mouse->motorR_PID->SetTarget(500);
-	mouse->motorL_PID->SetTarget(500);
+	mouse->motorR_PID->SetTarget(700);
+	mouse->motorL_PID->SetTarget(700);
 
 	float velocity_r=mouse->encorders->GetVelociryR_mm_s();
 	float velocity_l=mouse->encorders->GetVelociryL_mm_s();
 	float V_r=mouse->motorR_PID->Update(velocity_r);
-//	float V_l=mouse->motorL_PID->Update(velocity_l);
+	float V_l=mouse->motorL_PID->Update(velocity_l);
 	if(V_r>0.6)V_r=0.6;
 	if(V_r<-0.6)V_r=-0.6;
+	if(V_l>0.6)V_l=0.6;
+	if(V_l<-0.6)V_l=-0.6;
 	mouse->motors->SetVoltageR(V_r);
-	mouse->motors->SetVoltageL(0);
+	mouse->motors->SetVoltageL(V_l);
+//	mouse->motors->SetVoltageR(0.3);
+//	mouse->motors->SetVoltageL(0.3);
 
 	mouse->ui->SetLED( mouse->wall_sensor->GetWallR() <<3 |
 			mouse->wall_sensor->GetWallFR()<<2 |
