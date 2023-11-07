@@ -2,6 +2,7 @@
 #define _MACHINE_MODE_HPP_
 
 #include "mouse.hpp"
+#include <memory>
 
 typedef enum {
 	none_mode=-1,
@@ -198,7 +199,7 @@ public:
 	Debug(Mouse* _mouse);
 	~Debug();
 private:
-	Trajectory* trajectory;
+	std::unique_ptr<Trajectory> trajectory;
 
 	float velocity_l,velocity_r;
 	float target_velocity_l,target_velocity_r;

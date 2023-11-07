@@ -1,4 +1,5 @@
 #include "MachineMode.hpp"
+#include  <memory>
 #include "debug.hpp"
 //#include "machine_paramater.h"
 #include "Jacobian.hpp"
@@ -1002,10 +1003,10 @@ void SensorCheck::Interrupt_1ms(){
 	if(V_r<-v_max)V_r=-v_max;
 	if(V_l>v_max)V_l=v_max;
 	if(V_l<-v_max)V_l=-v_max;
-	mouse->motors->SetVoltageR(V_r);
-	mouse->motors->SetVoltageL(V_l);
-//	mouse->motors->SetVoltageR(0.4);
-//	mouse->motors->SetVoltageL(0.4);
+//	mouse->motors->SetVoltageR(V_r);
+//	mouse->motors->SetVoltageL(V_l);
+	mouse->motors->SetVoltageR(0.4);
+	mouse->motors->SetVoltageL(0.4);
 
 	mouse->ui->SetLED( mouse->wall_sensor->GetWallR() <<3 |
 			mouse->wall_sensor->GetWallFR()<<2 |
@@ -1023,7 +1024,7 @@ void SensorCheck::Interrupt_1ms(){
 Debug::Debug(Mouse* _mouse):MachineMode(_mouse){
 };
 void Debug::Loop(){
-	printf("%d,%d,%d,%d,%d,%d\r\n",mouse->imu->GetGzOffset(),(int)(gyro_raw[2]),(int)(target_omega*1000),(int)(target_theta*180.0/3.14),mouse->mouse_pos_y,(int)target_velocity_r,(int)target_velocity_l);
+	printf("%d,%d,%d,%d\r\n",(int)target_velocity_r,(int)target_velocity_l,(int)velocity_r,(int)velocity_l);
 
 }
 void Debug::Init(){
@@ -1031,8 +1032,8 @@ void Debug::Init(){
 	next_mode=debug_mode;
 
 	printf("Start debud mode!\n\r");
-	v_max=550;
-	turn_v_max=550;
+	v_max=400;
+	turn_v_max=300;
 	
 	idle=true;
 	timer=0;
@@ -1050,6 +1051,7 @@ void Debug::Init(){
 void Debug::Interrupt_1ms(){
 	mouse->imu->GetGyro(gyro);
 	mouse->imu->GetGyroRaw(gyro_raw);
+	static int wait_ms=0;
 
 	if(idle){
 		static int gesture_sensor_th=250;
@@ -1058,26 +1060,29 @@ void Debug::Interrupt_1ms(){
 		}
 		if((no_hand_flag==false) && gesture_flag && (mouse->wall_sensor->GetFrontR()< gesture_sensor_th && mouse->wall_sensor->GetFrontL()< gesture_sensor_th )){
 			no_hand_flag=true;
-			mouse->buzzer->On_ms(4000,40);
+			mouse->buzzer->On_ms(400,40);
 		}
 		bool cal=false;
-		if(no_hand_flag)cal=mouse->imu->Calibration();
+		if(no_hand_flag){
+			wait_ms+=1;
+			if(wait_ms>1000)cal=true;
+		}
 		if(cal){
 			idle=false;
 			float a_omega=80;
 			float v_max=350;
-			float 	turn_omega_max=2*100/50;
+			float turn_omega_max=2*100/50;
 			clothoid_params clothoid=clothoid_350mm_90deg_short;
-			delete trajectory;
-			//trajectory= new Line(0.0, 180*15, 0.0, 0, 500, 0, 1000.0, 0.0);
+			//delete trajectory;
+			trajectory= std::unique_ptr<Line>(new Line(0.0, 300, 0.0, 0, 200, 0, 500.0, 0.0));
 			//trajectory=new Rotate(180*10,turn_omega_max,a_omega);
-			trajectory=new DoubleTrajectory(
-				new MultTrajectory(
-						new Line(0.0, clothoid.in_mm+180/2, 0.0, 0, v_max, v_max, 10000.0, 0.0),
-						new Clothoid(clothoid,-1),
-						new Line(0.0, clothoid.out_mm+180/2, 0.0, v_max, v_max, 0, 10000.0, 0.0)
-				),
-				new Stay(2000));
+	//		trajectory=new DoubleTrajectory(
+	//			new MultTrajectory(
+	//					new Line(0.0, clothoid.in_mm+180/2, 0.0, 0, v_max, v_max, 10000.0, 0.0),
+	//					new Clothoid(clothoid,-1),
+	//					new Line(0.0, clothoid.out_mm+180/2, 0.0, v_max, v_max, 0, 10000.0, 0.0)
+	//			),
+	//			new Stay(2000));
 //			trajectory=new DoubleTrajectory(
 //				new MultTrajectory(
 //						new Line(0.0, 180+180/2, 0.0, 0, v_max, v_max, 10000.0, 0.0),
@@ -1103,13 +1108,12 @@ void Debug::Interrupt_1ms(){
 	}else{
 		if(trajectory->Update()){
 			clothoid_params clothoid=clothoid_350mm_90deg_short;
-			delete trajectory;
 			//trajectory =new MultTrajectory(
 			//	new Line(0.0, 180+clothoid.in_mm, 0.0, clothoid.v, clothoid.v, clothoid.v, 20000.0, 0.0),
 			//	new Clothoid(clothoid,-1),
 			//	new Line(0.0, clothoid.out_mm+180/2, 0.0, clothoid.v, clothoid.v, 0, 20000.0, 0.0)
 			//);
-			trajectory = new Stop();
+			trajectory = std::unique_ptr<Stop>(new Stop());
 			end_serch_flag=true;
 
 		}else{
@@ -1150,7 +1154,6 @@ void Debug::Interrupt_1ms(){
 	}
 	if(end_serch_flag){
 		printf("deleat\r\n");
-		delete trajectory;
 		next_mode=modeSelect_mode;
 	}
 
