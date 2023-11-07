@@ -27,6 +27,7 @@ void Encorders::InterruptL(){
 	pulseL=angle_dataL-pre_angle_dataL;
 	if(pulseL>8192)pulseL-=16384;
 	if(pulseL<-8192)pulseL+=16384;
+	pulseL*=dirL;
 
 }
 void Encorders::InterruptR(){
@@ -34,7 +35,7 @@ void Encorders::InterruptR(){
 	pulseR=angle_dataR-pre_angle_dataR;
 	if(pulseR>8192)pulseR-=16384;
 	if(pulseR<-8192)pulseR+=16384;
-//	pulseR=angle_dataR>>2;
+	pulseR*=dirR;
 }
 
 void Encorders::Update(){

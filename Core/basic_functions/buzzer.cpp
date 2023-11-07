@@ -28,7 +28,7 @@ void Buzzer::SetFrequency(int f){
     period = (HAL_RCC_GetPCLK1Freq() / (htim2.Init.Prescaler + 1)) / (f - 1);
     htim2.Instance->CNT = 0 ;
 	htim2.Instance->ARR = period; // 新しい周期を設定
-    htim2.Instance->CCR3 = period / 2; // Duty cycleを50%に保持
+    htim2.Instance->CCR3 = period / 3; // Duty cycleを50%に保持
 }
 void Buzzer::On_ms(int f, int _time_ms){
 	SetFrequency(f);
@@ -38,7 +38,7 @@ void Buzzer::On_ms(int f, int _time_ms){
 }
 
 void Buzzer::On(){
-    htim2.Instance->CCR3 = period / 2; // Duty cycleを50%に保持
+    htim2.Instance->CCR3 = period / 3; // Duty cycleを50%に保持
 
 }
 void Buzzer::Off(){

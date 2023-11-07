@@ -14,8 +14,8 @@ private:
 
 	int pulseR;
 	int pulseL;
-	const int dirR=-1;
-	const int dirL=1;
+	const int dirR=1;
+	const int dirL=-1;
 
 	uint16_t angle_dataL;
 	uint16_t angle_dataR;

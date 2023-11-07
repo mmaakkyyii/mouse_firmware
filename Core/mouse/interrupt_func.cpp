@@ -75,6 +75,7 @@ void int_125ums(){
 
 void int_10ms(){
 	mouse.Interrupt_10ms();
+	mode->Loop();
 }
 
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi){

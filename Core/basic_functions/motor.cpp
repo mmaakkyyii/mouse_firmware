@@ -53,10 +53,10 @@ void Motors::SetDutyPWMR(unsigned short duty){
 
 void Motors::SetVoltageL(float v){
 	if(v>0){
-		HAL_GPIO_WritePin(AIN1_GPIO_Port, AIN1_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(AIN1_GPIO_Port, AIN1_Pin, GPIO_PIN_RESET);
 	}else{
 		v=-v;
-		HAL_GPIO_WritePin(AIN1_GPIO_Port, AIN1_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(AIN1_GPIO_Port, AIN1_Pin, GPIO_PIN_SET);
 	}
 	SetDutyPWML(v/Vin*1000);
 

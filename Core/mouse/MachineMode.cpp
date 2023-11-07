@@ -840,22 +840,22 @@ void LowBattery::Loop(){
 	mouse->motors->SetVoltageR(0);
 	mouse->motors->SetVoltageL(0);
 	if(mouse->ui->GetSW2()==0 && mouse->ui->GetSW3()==0){
-		mouse->buzzer->On_ms(3000,100);
+		mouse->buzzer->On_ms(300,100);
 		next_mode=modeSelect_mode;
 	}
 
 
-};
+}
 void LowBattery::Init(){
 	mouse->motors->SetVoltageR(0);
 	mouse->motors->SetVoltageL(0);
-};
+}
 void LowBattery::Interrupt_1ms(){
 	mouse->motors->SetVoltageR(0);
 	mouse->motors->SetVoltageL(0);
 
-	mouse->buzzer->On_ms(800,1000);
-};
+//	mouse->buzzer->On_ms(400,1000);
+}
 
 /////////////////////////////
 DoNotRotate::DoNotRotate(Mouse* _mouse)
@@ -954,7 +954,7 @@ void SensorCheck::Loop(){
 	mouse->imu->GetGyroRaw(gyro_raw);
 
 //	printf("%4d,%4d,%4d\r\n",mouse->imu->GetGzOffset(),(int)( gyro_raw[2]),(int)(1000*gyro[2]));
-/*
+//*
 	printf("%5d,%5d,%d,%d,%d,%d,%d,%5d,%5d\r\n",
 		(int)(gyro_raw[2]),
 		(int)(gyro[2]),
@@ -970,6 +970,8 @@ void SensorCheck::Loop(){
 }
 
 void SensorCheck::Init(){
+	mouse->motorR_PID->SetTarget(0);
+	mouse->motorL_PID->SetTarget(0);
 	printf("Start Sensor Check mode!\n\r");
 }
 void SensorCheck::Interrupt_1ms(){
@@ -983,21 +985,27 @@ void SensorCheck::Interrupt_1ms(){
 //		else dir=1;
 //
 //	}
-	mouse->motorR_PID->SetTarget(700);
-	mouse->motorL_PID->SetTarget(700);
+	if(mouse->wall_sensor->GetWallFR() || mouse->wall_sensor->GetWallFL()){
+			mouse->motorR_PID->SetTarget(0);
+			mouse->motorL_PID->SetTarget(0);
+	}else if(mouse->wall_sensor->GetWallL()){
+		mouse->motorR_PID->SetTarget(500);
+		mouse->motorL_PID->SetTarget(500);
+	}
 
 	float velocity_r=mouse->encorders->GetVelociryR_mm_s();
 	float velocity_l=mouse->encorders->GetVelociryL_mm_s();
 	float V_r=mouse->motorR_PID->Update(velocity_r);
 	float V_l=mouse->motorL_PID->Update(velocity_l);
-	if(V_r>0.6)V_r=0.6;
-	if(V_r<-0.6)V_r=-0.6;
-	if(V_l>0.6)V_l=0.6;
-	if(V_l<-0.6)V_l=-0.6;
+	float v_max=1.5;
+	if(V_r>v_max)V_r=v_max;
+	if(V_r<-v_max)V_r=-v_max;
+	if(V_l>v_max)V_l=v_max;
+	if(V_l<-v_max)V_l=-v_max;
 	mouse->motors->SetVoltageR(V_r);
 	mouse->motors->SetVoltageL(V_l);
-//	mouse->motors->SetVoltageR(0.3);
-//	mouse->motors->SetVoltageL(0.3);
+//	mouse->motors->SetVoltageR(0.4);
+//	mouse->motors->SetVoltageL(0.4);
 
 	mouse->ui->SetLED( mouse->wall_sensor->GetWallR() <<3 |
 			mouse->wall_sensor->GetWallFR()<<2 |
