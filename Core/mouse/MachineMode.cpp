@@ -435,7 +435,7 @@ void SerchRun::Interrupt_1ms(){
 		}
 		if((no_hand_flag==false) && gesture_flag && (mouse->wall_sensor->GetFrontR()< gesture_sensor_th && mouse->wall_sensor->GetFrontL()< gesture_sensor_th )){
 			no_hand_flag=true;
-			mouse->buzzer->On_ms(4000,40);
+			mouse->buzzer->On_ms(400,40);
 		}
 		bool cal=false;
 		if(no_hand_flag)cal=mouse->imu->Calibration();
