@@ -84,10 +84,9 @@ public:
 	void Interrupt_1ms();
 	SerchRun(Mouse* _mouse);
 	~SerchRun(){
-		delete trajectory;
 	};
 private:
-	Trajectory* trajectory;
+	std::unique_ptr<Trajectory> trajectory;
 	clothoid_params clothoid;
 	char sla_mode;
 
@@ -118,10 +117,9 @@ public:
 	void Interrupt_1ms();
 	FastRun(Mouse* _mouse);
 	~FastRun(){
-		delete trajectory;
 	};
 private:
-	Trajectory* trajectory;
+	std::unique_ptr<Trajectory> trajectory;
 	clothoid_params clothoid;
 	char sla_mode;
 	float velocity_l,velocity_r;

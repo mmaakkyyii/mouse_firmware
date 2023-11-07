@@ -38,10 +38,9 @@ void ModeSelect::Init(){
 	pre_sw3=sw3;
 	printf("ModeSelect%d\n\r",mode_val);
 	
-
 }
 void ModeSelect::Loop(){
-	printf("%d\n\r",mode_val);
+	//printf("%d\n\r",mode_val);
 }
 void ModeSelect::Interrupt_1ms(){
 	mouse->motors->SetVoltageR(0);
@@ -66,13 +65,6 @@ void ModeSelect::Interrupt_1ms(){
 
 		}
 	}
-//	if(sw3<pre_sw3){
-//		if(mode_val>0){
-//			mouse->buzzer->On_ms(600,200);
-//			mode_val--;
-//			printf("mode:%d\n\r",mode_val);
-//		}
-//	}
 	if(sw2<pre_sw2){
 
 		switch(mode_val){
@@ -150,6 +142,8 @@ Dirction GetRotetaRight(Dirction dir){
 	//return -1;
 }
 //*/
+
+
 Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 		Trajectory* traj;			
 			if(return_start_flag==true){
@@ -337,8 +331,8 @@ void SerchRun::Loop(){
 
 		//printf("(%d,%d)%d,%d|%d,%d\r\n",trajectory->GetTragType(),(int)mouse->mouse_pos_x,mouse->mouse_pos_y,(int)target_velocity_r,(int)target_velocity_l,(int)velocity_r,(int)velocity_l);
 	}
-	if(mouse->ui->GetSW3()==0 && mouse->ui->GetSW2()==0){
-		mouse->buzzer->On_ms(3000,100);
+	if(mouse->ui->GetSW1()==0){
+		mouse->buzzer->On_ms(300,100);
 		next_mode=modeSelect_mode;
 	}
 
@@ -348,13 +342,12 @@ void SerchRun::Init(){
 	current_mode=serchRun_mode;
 	next_mode=serchRun_mode;
 	
-	delete trajectory;
-	trajectory=new Stop();
+	trajectory=std::unique_ptr<Stop>(new Stop());
 
 	mouse->motorR_PID->Reset();
 	mouse->motorL_PID->Reset();
 	
-	v_max=400;
+	v_max=300;
 	turn_v_max=200;
 	turn_omega_max=2*100/50;
 	a_omega=80;
@@ -448,10 +441,8 @@ void SerchRun::Interrupt_1ms(){
 		if(no_hand_flag)cal=mouse->imu->Calibration();
 		if(cal){
 			idle=false;
-			//mouse->trajectory=new Stop();
 			mouse->ui->SetLED(15);
-			delete trajectory;
-			trajectory=new Line(0.0, 180.0/2.0, 0.0, 0.0, v_max, v_max, 4000.0, 0.0);
+			trajectory=std::unique_ptr<Line>(new Line(0.0, 180.0/2.0, 0.0, 0.0, v_max, v_max, 4000.0, 0.0));
 			mouse->mouse_pos_y++;
 			//trajectory=new Rotate(90, 0, 100.0, 0, 1);
 			trajectory->Update();
@@ -459,8 +450,8 @@ void SerchRun::Interrupt_1ms(){
 		}
 	}else{
 		if(trajectory->Update()){
-			delete trajectory;
-			trajectory = trajectryUpdate(mouse,clothoid);
+			trajectory = std::unique_ptr<Trajectory>(trajectryUpdate(mouse,clothoid));
+//			trajectory = trajectryUpdate(mouse,clothoid);
 			thetaa=0;
 			sum_theta=0;
 			log_index=0;
@@ -562,8 +553,7 @@ void FastRun::Init(){
 	current_mode=fastRun_mode;
 	next_mode=fastRun_mode;
 
-	delete trajectory;
-	trajectory=new Stop();
+	trajectory=std::unique_ptr<Stop>(new Stop());
 
 	mouse->motorR_PID->Reset();
 	mouse->motorL_PID->Reset();
@@ -611,11 +601,11 @@ void FastRun::Interrupt_1ms(){
 
 		if(pre_sw1>sw1){
 			sla_mode++;
-			mouse->buzzer->On_ms(3000,40);
+			mouse->buzzer->On_ms(300,40);
 		}
 		if(pre_sw3>sw3){
 			sla_mode--;
-			mouse->buzzer->On_ms(4000,40);
+			mouse->buzzer->On_ms(400,40);
 		}
 		mouse->ui->SetLED(sla_mode);
 
@@ -658,7 +648,7 @@ void FastRun::Interrupt_1ms(){
 		}
 		if((no_hand_flag==false) && gesture_flag && (mouse->wall_sensor->GetFrontR()< gesture_sensor_th && mouse->wall_sensor->GetFrontL()< gesture_sensor_th )){
 			no_hand_flag=true;
-			mouse->buzzer->On_ms(4000,40);
+			mouse->buzzer->On_ms(400,40);
 		}
 		bool cal=false;
 		if(no_hand_flag)cal=mouse->imu->Calibration();
@@ -671,8 +661,8 @@ void FastRun::Interrupt_1ms(){
 				stright_num++;
 			}
 			
-			delete trajectory;
-			trajectory=new Line(0.0, 180.0/2.0+(stright_num-1)*180.0, 0.0, 0.0, v_max, clothoid.v, acc, 0.0);
+
+			trajectory=std::unique_ptr<Line>(new Line(0.0, 180.0/2.0+(stright_num-1)*180.0, 0.0, 0.0, v_max, clothoid.v, acc, 0.0));
 			//mouse->mouse_pos_y++;
 		}
 	}else{
@@ -733,19 +723,17 @@ void FastRun::Interrupt_1ms(){
 				printf("%d,%d,%d\r\n",(int)clothoid.v,(int)clothoid.in_mm,(int)clothoid.out_mm);
 
 					if(path_index>=path_length){
-						delete trajectory;
-						trajectory =new MultTrajectory(
+						trajectory =std::unique_ptr<MultTrajectory>(new MultTrajectory(
 							new Line(0.0, clothoid.in_mm, 0.0, clothoid.v, clothoid.v, clothoid.v, 20000.0, 0.0),
 							new Clothoid(clothoid,-1),
 							new Line(0.0, clothoid.out_mm+180/2, 0.0, clothoid.v, clothoid.v, 0, 20000.0, 0.0)
-							);
+							));
 					}else{
-						delete trajectory;
-						trajectory =new MultTrajectory(
+						trajectory =std::unique_ptr<MultTrajectory>(new MultTrajectory(
 							new Line(0.0, clothoid.in_mm, 0.0, clothoid.v, clothoid.v+1, clothoid.v, 20000.0, 0.0),
 							new Clothoid(clothoid,-1),
 							new Line(0.0, clothoid.out_mm, 0.0, clothoid.v, clothoid.v+1, clothoid.v, 20000.0, 0.0)
-						);
+						));
 
 					}
 
@@ -755,19 +743,17 @@ void FastRun::Interrupt_1ms(){
 		//			mouse->mouse_dir=GetRotetaLeft(mouse->mouse_dir);
 
 					if(path_index>=path_length){
-						delete trajectory;
-						trajectory =new MultTrajectory(
+						trajectory =std::unique_ptr<MultTrajectory>(new MultTrajectory(
 							new Line(0.0, clothoid.in_mm, 0.0, clothoid.v, clothoid.v, clothoid.v, 20000.0, 0.0),
 							new Clothoid(clothoid,1),
 							new Line(0.0, clothoid.out_mm+180/2, 0.0, clothoid.v, clothoid.v+1, 0, 20000.0, 0.0)
-							);
+							));
 					}else{
-						delete trajectory;
-						trajectory =new MultTrajectory(
+						trajectory =std::unique_ptr<MultTrajectory>(new MultTrajectory(
 							new Line(0.0, clothoid.in_mm, 0.0, clothoid.v, clothoid.v, clothoid.v, 20000.0, 0.0),
 							new Clothoid(clothoid,1),
 							new Line(0.0, clothoid.out_mm, 0.0, clothoid.v, clothoid.v+1, clothoid.v, 20000.0, 0.0)
-						);
+						));
 					}
 					printf("L\r\n");
 				}else if(mouse->maze_solver->adachi.run_plan[path_index] == Forward){
@@ -782,11 +768,9 @@ void FastRun::Interrupt_1ms(){
 
 					if(path_index>=path_length){
 						path_index++;
-						delete trajectory;
-						trajectory=new Line(0.0, (stright_num)*180.0+180.0/2, 0.0, clothoid.v, v_max, 0,          acc, 0.0);
+						trajectory=std::unique_ptr<Line>(new Line(0.0, (stright_num)*180.0+180.0/2, 0.0, clothoid.v, v_max, 0,          acc, 0.0));
 					}else{
-						delete trajectory;
-						trajectory=new Line(0.0, (stright_num)*180.0        , 0.0, clothoid.v, v_max, clothoid.v, acc, 0.0);
+						trajectory=std::unique_ptr<Line>(new Line(0.0, (stright_num)*180.0        , 0.0, clothoid.v, v_max, clothoid.v, acc, 0.0));
 					}
 					printf("S%d\r\n",stright_num);
 				}
@@ -825,8 +809,6 @@ void FastRun::Interrupt_1ms(){
 
 	}
 	if(end_serch_flag){
-		printf("deleat\r\n");
-		//delete trajectory;
 		next_mode=modeSelect_mode;
 	}
 }
