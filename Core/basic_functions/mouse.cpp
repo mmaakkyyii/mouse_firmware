@@ -73,8 +73,8 @@ void Mouse::Interrupt_10ms(){
 	int data[3];
 	imu->GetGyroRaw(data);
 //	printf("batt:%d\r\n",(int)(battery_check->GetBatteryVoltage_V()*1000));
-	printf("%5d,%5d,%5d\r\n",data[0],data[1],data[2]);
-//	printf("%d,%d\r\n",(int)encorders->GetVelociryL_mm_s(),(int)encorders->GetVelociryR_mm_s());
+//	printf("%5d,%5d,%5d\r\n",data[0],data[1],data[2]);
+	printf("%d,%d\r\n",(int)encorders->GetVelociryL_mm_s(),(int)encorders->GetVelociryR_mm_s());
 
 }
 
