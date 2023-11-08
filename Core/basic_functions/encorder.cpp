@@ -12,8 +12,10 @@ void Encorders::Init(){
 	pulseL=0;
 	HAL_SPI_TransmitReceive(&hspi2, (uint8_t *)tx_dataL, (uint8_t *)&angle_dataL, 1,100);
 	HAL_SPI_TransmitReceive(&hspi1, (uint8_t *)tx_dataR, (uint8_t *)&angle_dataR, 1,100);
-	pre_angle_dataL=angle_dataL>>2;
-	pre_angle_dataR=angle_dataR>>2;
+	angle_dataL=angle_dataL>>2;
+	angle_dataR=angle_dataR>>2;
+	pre_angle_dataL=angle_dataL;
+	pre_angle_dataR=angle_dataR;
 	
 }
 void Encorders::InitEncorderL(){
