@@ -12,7 +12,6 @@ float turn_omega_max;
 float a_omega;
 
 float acc;
-float Kp_wall=0.004;//0.004 0.0025
 
 bool goal_flag=false;
 
@@ -189,29 +188,29 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 					break;
 				}
 				if(return_start_flag!=true){
-					mouse->buzzer->On_ms(2400,500);
+					mouse->buzzer->On_ms(240,500);
 					traj=new DoubleTrajectory(
 						new MultTrajectory(
-							new Line(0.0, 180.0/2, 0.0 , v_max, v_max, 0.0, 10000.0, 0.0),
+							new Line(0.0, SECTION_WIDTH/2, 0.0 , v_max, v_max, 0.0, 10000.0, 0.0),
 							new Rotate(180,turn_omega_max,a_omega),
 							new Stay(100)
 						),
 						new DoubleTrajectory(
 							new Stay(1500),
-							new Line(0.0, 180/2.0, 0.0, 0, v_max, v_max, 10000.0, 0.0)
+							new Line(0.0, SECTION_WIDTH/2.0, 0.0, 0, v_max, v_max, 10000.0, 0.0)
 						)
 						);
 				}else{
-					mouse->buzzer->On_ms(2400,500);
+					mouse->buzzer->On_ms(240,500);
 					traj=new MultTrajectory(
-							new Line(0.0, 180.0/2, 0.0 , v_max, v_max, 0.0, 10000.0, 0.0),
+							new Line(0.0, SECTION_WIDTH/2, 0.0 , v_max, v_max, 0.0, 10000.0, 0.0),
 //							new Rotate(180, 0, turn_v_max, 0, 1),
 							new Rotate(180,turn_omega_max,a_omega),
 							new Stay(500)
 						);
 				}
 			}else{
-				mouse->buzzer->On_ms(2000,100);
+				mouse->buzzer->On_ms(200,100);
 				int wall = mouse->GetWallInfo();
 				mouse->maze_solver->adachi.SetMap(mouse->mouse_pos_x,mouse->mouse_pos_y,wall,mouse->mouse_dir);
 
@@ -251,7 +250,7 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 					break;
 				case -2:
 					traj=new MultTrajectory(
-						new Line(0.0, 180.0/2.0, 0.0, v_max, v_max, v_max, 4000.0, 0.0),
+						new Line(0.0, SECTION_WIDTH/2.0, 0.0, v_max, v_max, v_max, 4000.0, 0.0),
 						new MultTrajectory(
 							new Rotate(180,turn_omega_max,a_omega),
 							new ConstantVoltage(-1,-1,300),
@@ -259,7 +258,7 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 							//new Stay(100)	
 							//new Line(0.0, -180.0, 0.0, 0, 400, 0, 400.0, 0.0)
 						),
-						new Line(0.0, 180/2.0+MACHINE_BACK_LENGTH, 0.0, v_max, v_max, v_max, 10000.0, 0.0)
+						new Line(0.0, SECTION_WIDTH/2.0+MACHINE_BACK_LENGTH, 0.0, v_max, v_max, v_max, 10000.0, 0.0)
 //						new Line(0.0, 180/2.0, 0.0, v_max, v_max, v_max, 10000.0, 0.0)
 						);
 					break;
@@ -271,7 +270,7 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 						);
 					break;
 				case 0:
-					traj=new Line(0.0, 180.0, 0.0, v_max, v_max, v_max, 10000.0, 0.0);
+					traj=new Line(0.0, SECTION_WIDTH, 0.0, v_max, v_max, v_max, 10000.0, 0.0);
 					break;
 				case 1:
 					traj=new MultTrajectory(
@@ -282,7 +281,7 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 					break;
 				case 2:
 					traj=new MultTrajectory(
-						new Line(0.0, 180.0/2.0, 0.0, v_max, v_max, v_max, 4000.0, 0.0),
+						new Line(0.0, SECTION_WIDTH/2.0, 0.0, v_max, v_max, v_max, 4000.0, 0.0),
 						new MultTrajectory(
 							new Rotate(180,turn_omega_max,a_omega),
 							//new Stay(100)	
@@ -291,7 +290,7 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 
 							//new Line(0.0, -180.0, 0.0, 0, 400, 0, 400.0, 0.0)
 						),
-						new Line(0.0, 180/2.0+MACHINE_BACK_LENGTH, 0.0, v_max, v_max, v_max, 10000.0, 0.0)
+						new Line(0.0, SECTION_WIDTH/2.0+MACHINE_BACK_LENGTH, 0.0, v_max, v_max, v_max, 10000.0, 0.0)
 //						new Line(0.0, 180/2.0, 0.0, v_max, v_max, v_max, 10000.0, 0.0)
 						);
 					break;
@@ -304,7 +303,7 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 					break;
 				default:
 					traj=new Stop();
-					mouse->buzzer->On_ms(1500,100);
+					mouse->buzzer->On_ms(150,100);
 					break;
 				}
 			}
@@ -395,36 +394,12 @@ void SerchRun::Interrupt_1ms(){
 		
 		switch(sla_mode){
 			case 0:
-				clothoid=clothoid_350mm_90deg_short;
-				v_max=350;
-
-				break;
-			case 1:
-				clothoid=clothoid_350mm_90deg_long;
-				v_max=350;
-
-				break;
-			case 2:
-				clothoid=clothoid_350mm_90deg_short2;
-				v_max=350;
-
-				break;
-			case 3:
-				clothoid=clothoid_350mm_90deg_short3;
-				v_max=350;
-
-				break;
-			case 4:
-				clothoid=clothoid_450mm_90deg;
-				v_max=400;
-				break;
-			case 5:
-				clothoid=clothoid_550mm_90deg;
-				v_max=450;
+				clothoid=clothoid_200mm_d90deg_1;
+				v_max=200;
 				break;
 			default: 
-				clothoid=clothoid_350mm_90deg_short;
-				v_max=350;
+				clothoid=clothoid_200mm_d90deg_1;
+				v_max=200;
 				break;
 		}
 
