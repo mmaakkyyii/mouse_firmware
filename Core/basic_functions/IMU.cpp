@@ -1,5 +1,4 @@
 #include "IMU.hpp"
-#include "static_parameters.h"
 #include "delay.h"
 
 //MISO P17
@@ -96,17 +95,14 @@ void IMU::Update(){
 	gyro_data[1]=(int16_t) ((uint16_t)gyro_data_8bit[2]<<8 | (uint16_t)gyro_data_8bit[3]);
 	gyro_data[2]=(int16_t) ((uint16_t)gyro_data_8bit[4]<<8 | (uint16_t)gyro_data_8bit[5]);
 
-/*
 	if(calibration_flag){
+		gyro_data_offset[2]+=gyro_data[2];
 		gyro_data[2]=-1;
-		gyro_data_offset[2]+=(signed short)(_imu);
 		cal_num++;
 	}else{
-		gyro_data[2]=(signed short)(_imu);
+		//gyro_data[2]=(signed short)(_imu);
 		gyro_data[2]-=gyro_data_offset[2];
 	}
-*/
-	//gyro_data[0]=Read16bit(GYRO_XOUT_H_ADDR+4);
 
 }
 void IMU::GetGyroRaw(int * gyro){
