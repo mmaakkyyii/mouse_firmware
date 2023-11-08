@@ -1,5 +1,4 @@
 #include "ui.hpp"
-#include "static_parameters.h"
 #include "main.h"
 #include "gpio.h"
 

@@ -1,5 +1,4 @@
 #include "wall_sensor.hpp"
-#include "static_parameters.h"
 #include "gpio.h"
 #include "adc.h"
 

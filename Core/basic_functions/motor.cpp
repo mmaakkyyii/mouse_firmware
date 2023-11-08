@@ -1,5 +1,4 @@
 #include "motor.hpp"
-#include "static_parameters.h"
 #include "tim.h"
 
 Motors::Motors(){

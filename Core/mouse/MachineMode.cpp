@@ -347,7 +347,7 @@ void SerchRun::Init(){
 	mouse->motorR_PID->Reset();
 	mouse->motorL_PID->Reset();
 	
-	v_max=300;
+	v_max=200;
 	turn_v_max=200;
 	turn_omega_max=2*100/50;
 	a_omega=80;
@@ -384,11 +384,11 @@ void SerchRun::Interrupt_1ms(){
 
 		if(pre_sw1>sw1){
 			sla_mode++;
-			mouse->buzzer->On_ms(3000,40);
+			mouse->buzzer->On_ms(300,40);
 		}
 		if(pre_sw3>sw3){
 			sla_mode--;
-			mouse->buzzer->On_ms(4000,40);
+			mouse->buzzer->On_ms(400,40);
 		}
 		mouse->ui->SetLED(sla_mode);
 
@@ -473,7 +473,7 @@ void SerchRun::Interrupt_1ms(){
 			float e_theta=target_theta-thetaa;
 			sum_theta+=e_theta;
 			if(trajectory->GetTragType()==rotate){
-				mouse->buzzer->On_ms(2500,30);
+				mouse->buzzer->On_ms(250,30);
 
 				target_omega+= Kp_theta*e_theta + Ki_theta*sum_theta;
 				if(log_index<log_data_num-1){
