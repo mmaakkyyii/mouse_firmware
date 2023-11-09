@@ -1,9 +1,13 @@
 #include "MachineMode.hpp"
 #include  <memory>
 #include "debug.hpp"
-//#include "machine_paramater.h"
+#include "machine_paramater.h"
 #include "Jacobian.hpp"
 #include "clothoid_param.hpp"
+
+#include "MazeDef.hpp"
+#include "Adachi.hpp"
+
 bool end_serch_flag;
 bool return_start_flag;
 float v_max;
@@ -54,11 +58,11 @@ void ModeSelect::Interrupt_1ms(){
 	
 	if(sw1<pre_sw1){
 		if(mode_val<15){
-			mouse->buzzer->On_ms(400,200);
+			mouse->buzzer->On_ms(400,20);
 			mode_val++;
 			printf("mode:%d\n\r",mode_val);
 		}else{
-			mouse->buzzer->On_ms(600,200);
+			mouse->buzzer->On_ms(600,20);
 			mode_val=0;
 			printf("mode:%d\n\r",mode_val);
 
@@ -69,31 +73,31 @@ void ModeSelect::Interrupt_1ms(){
 		switch(mode_val){
 		case 0:
 			next_mode=serchRun_mode;
-			mouse->buzzer->On_ms(800,500);
+			mouse->buzzer->On_ms(800,50);
 			break;
 		case 1:
 			next_mode=fastRun_mode;
-			mouse->buzzer->On_ms(800,500);
+			mouse->buzzer->On_ms(800,50);
 			break;
 		case 2:
 			next_mode=debug_mode;
-			mouse->buzzer->On_ms(800,500);
+			mouse->buzzer->On_ms(800,50);
 			break;
 		case 3:
 			next_mode=parameterSetting_mode;
-			mouse->buzzer->On_ms(800,500);
+			mouse->buzzer->On_ms(800,50);
 			break;
 		case 4:
 			next_mode=sensorCheck_mode;
-			mouse->buzzer->On_ms(800,500);
+			mouse->buzzer->On_ms(800,50);
 			break;
 		case 5:
 			next_mode=doNotRotate_mode;
-			mouse->buzzer->On_ms(800,500);
+			mouse->buzzer->On_ms(800,50);
 			break;
 		case 6:
 			next_mode=logOutput_mode;
-			mouse->buzzer->On_ms(800,500);
+			mouse->buzzer->On_ms(800,50);
 			break;
 		case 7:
 			break;
@@ -253,7 +257,7 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 						new Line(0.0, SECTION_WIDTH/2.0, 0.0, v_max, v_max, v_max, 4000.0, 0.0),
 						new MultTrajectory(
 							new Rotate(180,turn_omega_max,a_omega),
-							new ConstantVoltage(-1,-1,300),
+							new ConstantVoltage(-MACHINE_BACK_VOLTAGE,-MACHINE_BACK_VOLTAGE,MACHINE_BACK_TIME),
 							new Stay(100)
 							//new Stay(100)	
 							//new Line(0.0, -180.0, 0.0, 0, 400, 0, 400.0, 0.0)
@@ -285,7 +289,7 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 						new MultTrajectory(
 							new Rotate(180,turn_omega_max,a_omega),
 							//new Stay(100)	
-							new ConstantVoltage(-1,-1,300),
+							new ConstantVoltage(-MACHINE_BACK_VOLTAGE,-MACHINE_BACK_VOLTAGE,MACHINE_BACK_TIME),
 							new Stay(100)
 
 							//new Line(0.0, -180.0, 0.0, 0, 400, 0, 400.0, 0.0)
@@ -350,7 +354,7 @@ void SerchRun::Init(){
 	turn_v_max=200;
 	turn_omega_max=2*100/50;
 	a_omega=80;
-	clothoid=clothoid_350mm_90deg_short;
+	clothoid=clothoid_200mm_d90deg_1;
 
 	mouse->mouse_pos_x=0;
 	mouse->mouse_pos_y=0;
@@ -403,12 +407,14 @@ void SerchRun::Interrupt_1ms(){
 				break;
 		}
 
+		static int gesture_sensorR_th=250;
+		static int gesture_sensorL_th=250;
 
-		static int gesture_sensor_th=250;
-		if((mouse->wall_sensor->GetFrontR() > gesture_sensor_th || mouse->wall_sensor->GetFrontL() > gesture_sensor_th )){
+//		static int gesture_sensor_th=250;
+		if((mouse->wall_sensor->GetFrontR() > gesture_sensorR_th || mouse->wall_sensor->GetFrontL() > gesture_sensorL_th )){
 			gesture_flag=true;
 		}
-		if((no_hand_flag==false) && gesture_flag && (mouse->wall_sensor->GetFrontR()< gesture_sensor_th && mouse->wall_sensor->GetFrontL()< gesture_sensor_th )){
+		if((no_hand_flag==false) && gesture_flag && (mouse->wall_sensor->GetFrontR()< gesture_sensorR_th && mouse->wall_sensor->GetFrontL()< gesture_sensorL_th )){
 			no_hand_flag=true;
 			mouse->buzzer->On_ms(400,40);
 		}
@@ -417,7 +423,7 @@ void SerchRun::Interrupt_1ms(){
 		if(cal){
 			idle=false;
 			mouse->ui->SetLED(15);
-			trajectory=std::unique_ptr<Line>(new Line(0.0, 180.0/2.0, 0.0, 0.0, v_max, v_max, 4000.0, 0.0));
+			trajectory=std::unique_ptr<Line>(new Line(0.0, SECTION_WIDTH/2.0, 0.0, 0.0, v_max, v_max, 6000.0, 0.0));
 			mouse->mouse_pos_y++;
 			//trajectory=new Rotate(90, 0, 100.0, 0, 1);
 			trajectory->Update();
@@ -533,7 +539,7 @@ void FastRun::Init(){
 	mouse->motorR_PID->Reset();
 	mouse->motorL_PID->Reset();
 	
-	v_max=1500;
+	v_max=300;
 	turn_v_max=250;
 	turn_omega_max=2*100/50;
 	a_omega=80;
@@ -586,42 +592,21 @@ void FastRun::Interrupt_1ms(){
 
 		switch(sla_mode){
 			case 0:
-				clothoid=clothoid_350mm_90deg_short;
-				v_max=1000;
-
-				break;
-			case 1:
-				clothoid=clothoid_350mm_90deg_long;
-				v_max=1000;
-
-				break;
-			case 2:
-				clothoid=clothoid_350mm_90deg_short2;
-				v_max=1000;
-
-				break;
-			case 3:
-				clothoid=clothoid_350mm_90deg_short3;
-				v_max=1000;
-
-				break;
-			case 4:
-				clothoid=clothoid_450mm_90deg;
-				v_max=1500;
-				break;
-			case 5:
-				clothoid=clothoid_550mm_90deg;
-				v_max=1500;
+				clothoid=clothoid_200mm_d90deg_1;
+				v_max=200;
 				break;
 			default: 
-				clothoid=clothoid_350mm_90deg_short;
+				clothoid=clothoid_200mm_d90deg_1;
+				v_max=200;
 				break;
 		}
-		static int gesture_sensor_th=250;
-		if((mouse->wall_sensor->GetFrontR() > gesture_sensor_th || mouse->wall_sensor->GetFrontL() > gesture_sensor_th )){
+
+		static int gesture_sensorR_th=250;
+		static int gesture_sensorL_th=250;
+		if((mouse->wall_sensor->GetFrontR() > gesture_sensorR_th || mouse->wall_sensor->GetFrontL() > gesture_sensorL_th )){
 			gesture_flag=true;
 		}
-		if((no_hand_flag==false) && gesture_flag && (mouse->wall_sensor->GetFrontR()< gesture_sensor_th && mouse->wall_sensor->GetFrontL()< gesture_sensor_th )){
+		if((no_hand_flag==false) && gesture_flag && (mouse->wall_sensor->GetFrontR()< gesture_sensorR_th && mouse->wall_sensor->GetFrontL()< gesture_sensorL_th )){
 			no_hand_flag=true;
 			mouse->buzzer->On_ms(400,40);
 		}
@@ -637,7 +622,7 @@ void FastRun::Interrupt_1ms(){
 			}
 			
 
-			trajectory=std::unique_ptr<Line>(new Line(0.0, 180.0/2.0+(stright_num-1)*180.0, 0.0, 0.0, v_max, clothoid.v, acc, 0.0));
+			trajectory=std::unique_ptr<Line>(new Line(0.0, SECTION_WIDTH/2.0+(stright_num-1)*SECTION_WIDTH, 0.0, 0.0, v_max, clothoid.v, acc, 0.0));
 			//mouse->mouse_pos_y++;
 		}
 	}else{
@@ -701,7 +686,7 @@ void FastRun::Interrupt_1ms(){
 						trajectory =std::unique_ptr<MultTrajectory>(new MultTrajectory(
 							new Line(0.0, clothoid.in_mm, 0.0, clothoid.v, clothoid.v, clothoid.v, 20000.0, 0.0),
 							new Clothoid(clothoid,-1),
-							new Line(0.0, clothoid.out_mm+180/2, 0.0, clothoid.v, clothoid.v, 0, 20000.0, 0.0)
+							new Line(0.0, clothoid.out_mm+SECTION_WIDTH/2, 0.0, clothoid.v, clothoid.v, 0, 20000.0, 0.0)
 							));
 					}else{
 						trajectory =std::unique_ptr<MultTrajectory>(new MultTrajectory(
@@ -721,7 +706,7 @@ void FastRun::Interrupt_1ms(){
 						trajectory =std::unique_ptr<MultTrajectory>(new MultTrajectory(
 							new Line(0.0, clothoid.in_mm, 0.0, clothoid.v, clothoid.v, clothoid.v, 20000.0, 0.0),
 							new Clothoid(clothoid,1),
-							new Line(0.0, clothoid.out_mm+180/2, 0.0, clothoid.v, clothoid.v+1, 0, 20000.0, 0.0)
+							new Line(0.0, clothoid.out_mm+SECTION_WIDTH/2, 0.0, clothoid.v, clothoid.v+1, 0, 20000.0, 0.0)
 							));
 					}else{
 						trajectory =std::unique_ptr<MultTrajectory>(new MultTrajectory(
@@ -743,9 +728,9 @@ void FastRun::Interrupt_1ms(){
 
 					if(path_index>=path_length){
 						path_index++;
-						trajectory=std::unique_ptr<Line>(new Line(0.0, (stright_num)*180.0+180.0/2, 0.0, clothoid.v, v_max, 0,          acc, 0.0));
+						trajectory=std::unique_ptr<Line>(new Line(0.0, (stright_num)*SECTION_WIDTH+SECTION_WIDTH/2, 0.0, clothoid.v, v_max, 0,          acc, 0.0));
 					}else{
-						trajectory=std::unique_ptr<Line>(new Line(0.0, (stright_num)*180.0        , 0.0, clothoid.v, v_max, clothoid.v, acc, 0.0));
+						trajectory=std::unique_ptr<Line>(new Line(0.0, (stright_num)*SECTION_WIDTH        , 0.0, clothoid.v, v_max, clothoid.v, acc, 0.0));
 					}
 					printf("S%d\r\n",stright_num);
 				}
@@ -914,19 +899,15 @@ void SensorCheck::Loop(){
 	mouse->localization->GetPosition(&_x, &_y, &_theta);
 
 //	printf("%4d,%4d,%4d\r\n",mouse->imu->GetGzOffset(),(int)( gyro_raw[2]),(int)(1000*gyro[2]));
-	//*
-		printf("%5d,%5d,%4d,%4d,%4d\r\n",
-			(int)(_x),
-			(int)(_y),
-			(int)(_theta*180/3.14),
+	/*
+		printf("%4d,%4d,%4d\r\n",
+			(int)(1000*mouse->battery_check->GetBatteryVoltage_V()),
 			(int)(mouse->encorders->GetVelociryL_mm_s()),
 			(int)(mouse->encorders->GetVelociryR_mm_s())
 			);
 	//*/
-/*
-			printf("%5d,%5d,%d,%d,%d,%d,%d,%5d,%5d\r\n",
-				(int)(_x),
-				(int)(_y),
+//*
+			printf("%4d,%d,%d,%d,%d,%5d,%5d\r\n",
 				(int)(1000*mouse->battery_check->GetBatteryVoltage_V()),
 				mouse->wall_sensor->GetLeft(),
 				mouse->wall_sensor->GetFrontL(),
@@ -949,8 +930,8 @@ void SensorCheck::Interrupt_1ms(){
 			mouse->motorR_PID->SetTarget(0);
 			mouse->motorL_PID->SetTarget(0);
 	}else if(mouse->wall_sensor->GetWallL()){
-		mouse->motorR_PID->SetTarget(500);
-		mouse->motorL_PID->SetTarget(500);
+		mouse->motorR_PID->SetTarget(200);
+		mouse->motorL_PID->SetTarget(200);
 	}
 
 	float velocity_r=mouse->encorders->GetVelociryR_mm_s();
@@ -964,17 +945,18 @@ void SensorCheck::Interrupt_1ms(){
 	if(V_l<-v_max)V_l=-v_max;
 //	mouse->motors->SetVoltageR(V_r);
 //	mouse->motors->SetVoltageL(V_l);
-//	mouse->motors->SetVoltageR(0.4);
-//	mouse->motors->SetVoltageL(0.4);
+//	mouse->motors->SetVoltageR(0.5);
+//	mouse->motors->SetVoltageL(0.5);
 
+	static int led=1;
+	led=1-led;
 	mouse->ui->SetLED( mouse->wall_sensor->GetWallR() <<3 |
 			mouse->wall_sensor->GetWallFR()<<2 |
 			mouse->wall_sensor->GetWallFL()<<1 |
 			mouse->wall_sensor->GetWallL()       );
 
-
 	if(mouse->ui->GetSW1()==0){
-		mouse->buzzer->On_ms(3000,100);
+		mouse->buzzer->On_ms(3000,10);
 		next_mode=modeSelect_mode;
 	}
 };
@@ -1000,6 +982,7 @@ void Debug::Init(){
 	return_start_flag=false;
 	gesture_flag=false;
 	no_hand_flag=false;
+	wait_ms=0;
 
 
 	log_index=0;
@@ -1010,12 +993,12 @@ void Debug::Init(){
 void Debug::Interrupt_1ms(){
 	mouse->imu->GetGyro(gyro);
 	mouse->imu->GetGyroRaw(gyro_raw);
-	static int wait_ms=0;
 
 	if(idle){
 		static int gesture_sensor_th=250;
 		if((mouse->wall_sensor->GetFrontR() > gesture_sensor_th || mouse->wall_sensor->GetFrontL() > gesture_sensor_th )){
 			gesture_flag=true;
+			mouse->buzzer->On_ms(200,40);
 		}
 		if((no_hand_flag==false) && gesture_flag && (mouse->wall_sensor->GetFrontR()< gesture_sensor_th && mouse->wall_sensor->GetFrontL()< gesture_sensor_th )){
 			no_hand_flag=true;
@@ -1024,16 +1007,23 @@ void Debug::Interrupt_1ms(){
 		bool cal=false;
 		if(no_hand_flag){
 			wait_ms+=1;
-			if(wait_ms>1000)cal=true;
+			if(wait_ms>1000){
+				cal=true;
+				mouse->buzzer->On_ms(500,100);
+
+			}
 		}
 		if(cal){
 			idle=false;
-			float a_omega=80;
-			float v_max=350;
-			float turn_omega_max=2*100/50;
-			clothoid_params clothoid=clothoid_350mm_90deg_short;
-			//delete trajectory;
-			trajectory= std::unique_ptr<Line>(new Line(0.0, 300, 0.0, 0, 200, 0, 500.0, 0.0));
+
+			clothoid_params clothoid=clothoid_200mm_d90deg_1;
+//			trajectory= std::unique_ptr<MultTrajectory>(new MultTrajectory(
+//					new Line(0.0, SECTION_WIDTH/2.0+clothoid.in_mm, 0.0, clothoid.v, clothoid.v, clothoid.v, 20000.0, 0.0),
+//					new Clothoid(clothoid,-1),
+//					new Line(0.0, clothoid.out_mm+SECTION_WIDTH/2.0, 0.0, clothoid.v, clothoid.v, 0, 20000.0, 0.0)
+//				));
+
+			trajectory= std::unique_ptr<Line>(new Line(0.0, SECTION_WIDTH*10, 0.0, 0, 200, 0, 500.0, 0.0));
 			//trajectory=new Rotate(180*10,turn_omega_max,a_omega);
 	//		trajectory=new DoubleTrajectory(
 	//			new MultTrajectory(
@@ -1066,12 +1056,6 @@ void Debug::Interrupt_1ms(){
 		}
 	}else{
 		if(trajectory->Update()){
-			clothoid_params clothoid=clothoid_350mm_90deg_short;
-			//trajectory =new MultTrajectory(
-			//	new Line(0.0, 180+clothoid.in_mm, 0.0, clothoid.v, clothoid.v, clothoid.v, 20000.0, 0.0),
-			//	new Clothoid(clothoid,-1),
-			//	new Line(0.0, clothoid.out_mm+180/2, 0.0, clothoid.v, clothoid.v, 0, 20000.0, 0.0)
-			//);
 			trajectory = std::unique_ptr<Stop>(new Stop());
 			end_serch_flag=true;
 

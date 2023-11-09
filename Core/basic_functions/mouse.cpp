@@ -40,6 +40,8 @@ void Mouse::Init(){
 	encorders->Init();
 	imu->Init();
 	
+	battery_check->Update();
+
 	int map_data[MAZESIZE_X][MAZESIZE_Y]={0};
 	maze_solver->Init();
 	maze_solver->adachi.InitMaze(UNKNOWN,map_data);
@@ -59,7 +61,8 @@ void Mouse::Init(){
 		delay_ms(25);
 	}
 	buzzer->Off();		//�u�U�[�̔��U���~������	
-//	printf("Hello mmaakkyyii mouse!\r\n");
+
+	printf("Battery %d mV\r\n",(int)(battery_check->GetBatteryVoltage_V()*1000));
 
 //	delete trajectory;
 //	trajectory=new Line(0.0, 180.0/2, 0.0, 0, v_max, v_max, 10000.0, 0.0);
@@ -293,7 +296,7 @@ void Mouse::Interrupt_1ms(){
 	}else{
 		count++;
 	}
-	localization->Update();
+	//localization->Update();
 	//localization->GetPosition(&current_x,&current_y,&current_theta);
 
 }

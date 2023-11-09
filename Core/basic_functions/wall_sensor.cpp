@@ -61,10 +61,11 @@ uint16_t ReadADC(int ch){
 void WallSensor::Update(){
 	static int state = 0;		//�ǂݍ��ރZ���T�̃��[�e�[�V�����Ǘ��p�ϐ�
 	//int i;
+	int loop_num=50;
 	switch(state)
 	{
 		case 1:
-			HAL_GPIO_WritePin(LED_R_GPIO_Port, LED_R_Pin, GPIO_PIN_SET);
+			for(int i=0;i<loop_num;i++)HAL_GPIO_WritePin(LED_R_GPIO_Port, LED_R_Pin, GPIO_PIN_SET);
 			right= ReadADC(2);
 			HAL_GPIO_WritePin(LED_R_GPIO_Port, LED_R_Pin, GPIO_PIN_RESET);
 			pre_right = right;			//�ߋ��̒l��ۑ�
@@ -81,7 +82,7 @@ void WallSensor::Update(){
 			break;
 
 		case 3:
-			HAL_GPIO_WritePin(LED_FL_GPIO_Port, LED_FL_Pin, GPIO_PIN_SET);
+			for(int i=0;i<loop_num;i++)HAL_GPIO_WritePin(LED_FL_GPIO_Port, LED_FL_Pin, GPIO_PIN_SET);
 			frontL= ReadADC(4);//4
 			HAL_GPIO_WritePin(LED_FL_GPIO_Port, LED_FL_Pin, GPIO_PIN_RESET);
 			pre_frontL = frontL;			//�ߋ��̒l��ۑ�
@@ -90,7 +91,7 @@ void WallSensor::Update(){
 			break;
 
 		case 0:
-			HAL_GPIO_WritePin(LED_FR_GPIO_Port, LED_FR_Pin, GPIO_PIN_SET);
+			for(int i=0;i<loop_num;i++)HAL_GPIO_WritePin(LED_FR_GPIO_Port, LED_FR_Pin, GPIO_PIN_SET);
 			frontR= ReadADC(1);//
 			HAL_GPIO_WritePin(LED_FR_GPIO_Port, LED_FR_Pin, GPIO_PIN_RESET);
 			pre_frontR = frontR;
@@ -99,7 +100,7 @@ void WallSensor::Update(){
 			break;
 
 		case 2:
-			HAL_GPIO_WritePin(LED_L_GPIO_Port, LED_L_Pin, GPIO_PIN_SET);
+			for(int i=0;i<loop_num;i++)HAL_GPIO_WritePin(LED_L_GPIO_Port, LED_L_Pin, GPIO_PIN_SET);
 			left= ReadADC(3);
 			HAL_GPIO_WritePin(LED_L_GPIO_Port, LED_L_Pin, GPIO_PIN_RESET);
 			pre_left = left;			//�ߋ��̒l��ۑ�

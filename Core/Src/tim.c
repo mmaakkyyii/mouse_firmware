@@ -190,7 +190,7 @@ void MX_TIM16_Init(void)
 
   /* USER CODE END TIM16_Init 1 */
   htim16.Instance = TIM16;
-  htim16.Init.Prescaler = 17-1;
+  htim16.Init.Prescaler = 170-1;
   htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim16.Init.Period = 9999;
   htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -217,7 +217,7 @@ void MX_TIM17_Init(void)
 
   /* USER CODE END TIM17_Init 1 */
   htim17.Instance = TIM17;
-  htim17.Init.Prescaler = 17-1;
+  htim17.Init.Prescaler = 170-1;
   htim17.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim17.Init.Period = 1000;
   htim17.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;

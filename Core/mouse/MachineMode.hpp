@@ -213,7 +213,7 @@ private:
 	int gesture_flag;
 	int no_hand_flag;
 	int timer;
-
+	int wait_ms;
 	bool idle;
 	
 	

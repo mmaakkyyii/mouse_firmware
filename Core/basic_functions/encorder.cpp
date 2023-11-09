@@ -68,8 +68,8 @@ float Encorders::GetRPSR(){
 
 
 float Encorders::GetVelociryL_mm_s(){
-	return (float)pulseL/PPR*3.14*gear_ratio*radius_mm/(period_ms/1000.0);//�v�Z��������
+	return (float)pulseL/PPR*2*3.14*gear_ratio*radius_mm/(period_ms/1000.0);//�v�Z��������
 }
 float Encorders::GetVelociryR_mm_s(){
-	return (float)pulseR/PPR*3.14*gear_ratio*radius_mm/(period_ms/1000.0);
+	return (float)pulseR/PPR*2*3.14*gear_ratio*radius_mm/(period_ms/1000.0);
 }
