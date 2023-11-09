@@ -6,7 +6,7 @@ const float TREAD_WIDTH=35;//TODO
 const float TIYA_R=13.0/2.0;//TODO 12.75
 const float MACHINE_BACK_LENGTH=90/2.0-0.3-25;
 const float MACHINE_BACK_VOLTAGE=1;//TODO
-const float MACHINE_BACK_TIME=200;//TODO
+const float MACHINE_BACK_TIME=300;//TODO
 
 
 
