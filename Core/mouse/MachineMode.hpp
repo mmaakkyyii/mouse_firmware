@@ -180,6 +180,7 @@ public:
 	void Interrupt_1ms();
 	SensorCheck(Mouse* _mouse);
 	~SensorCheck();
+	float theta_gyro=0;
 };
 class LogOutput:public MachineMode{
 public:

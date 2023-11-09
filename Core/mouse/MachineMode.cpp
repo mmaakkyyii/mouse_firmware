@@ -332,7 +332,7 @@ void SerchRun::Loop(){
 	}else{
 		//mouse->imu->GetGyro(gyro);
 
-		//printf("(%d,%d)%d,%d|%d,%d\r\n",trajectory->GetTragType(),(int)mouse->mouse_pos_x,mouse->mouse_pos_y,(int)target_velocity_r,(int)target_velocity_l,(int)velocity_r,(int)velocity_l);
+		printf("%d,(%d,%d)%d,%d|%d,%d\r\n",trajectory->GetTragType(),(int)mouse->mouse_pos_x,mouse->mouse_pos_y,(int)target_velocity_r,(int)target_velocity_l,(int)velocity_r,(int)velocity_l);
 	}
 	if(mouse->ui->GetSW1()==0){
 		mouse->buzzer->On_ms(300,100);
@@ -854,8 +854,8 @@ void DoNotRotate::Interrupt_1ms(){
 		omega_z=gyro[2];
 		gyro_theta+=(omega_z)*0.001;
 		static float e_sum=0;
-		float Kp=0;//2;
-		float Ki=0;//0.02;
+		float Kp=0.15;//2;
+		float Ki=0.01;//0.02;
 		float e=(0-gyro_theta);
 		e_sum+=e;
 		float output_omega=Kp*e+Ki*0.001*e_sum;
@@ -893,8 +893,6 @@ SensorCheck::SensorCheck(Mouse* _mouse):MachineMode(_mouse){
 void SensorCheck::Loop(){
 //	printf("\x1b[2J");		//�N���A�X�N���[��[CLS]
 //	printf("\x1b[0;0H");	//�J�[�\����0,0�Ɉړ�
-	mouse->imu->GetGyro(gyro);
-	mouse->imu->GetGyroRaw(gyro_raw);
 	float _x,_y,_theta;
 	mouse->localization->GetPosition(&_x, &_y, &_theta);
 
@@ -907,7 +905,8 @@ void SensorCheck::Loop(){
 			);
 	//*/
 //*
-			printf("%4d,%d,%d,%d,%d,%5d,%5d\r\n",
+			printf("%4d,%4d,%d,%d,%d,%d,%5d,%5d\r\n",
+				(int)(theta_gyro),
 				(int)(1000*mouse->battery_check->GetBatteryVoltage_V()),
 				mouse->wall_sensor->GetLeft(),
 				mouse->wall_sensor->GetFrontL(),
@@ -925,6 +924,8 @@ void SensorCheck::Init(){
 	printf("Start Sensor Check mode!\n\r");
 }
 void SensorCheck::Interrupt_1ms(){
+	mouse->imu->GetGyro(gyro);
+	theta_gyro+=(gyro[2]*0.001);
 
 	if(mouse->wall_sensor->GetWallFR() || mouse->wall_sensor->GetWallFL()){
 			mouse->motorR_PID->SetTarget(0);
