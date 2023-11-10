@@ -41,7 +41,7 @@ int Stop::Update(){
 Stay::Stay(int t_ms):Trajectory(){
 	traj_type=stay;
 	t1=t_ms*0.001;
-	period_s=0.001;
+	period_s=CONTROL_PERIOD_ms/1000.0;
 }
 int Stay::Update(){
 	int is_finish=0;
@@ -148,7 +148,7 @@ Slalom::Slalom(float _theta_deg,float radius,float _v0, float _vmax, float _vf, 
 {
 	traj_type=slalom;
 	
-	period_s=0.001; //[s]
+	period_s=CONTROL_PERIOD_ms/1000.0; //[s]
 	r=radius;
 	vmax=_vmax;
 	if(_theta_deg<0){
@@ -181,7 +181,7 @@ Rotate::Rotate(float _theta_deg,float _omega_max, float _a_omega):Trajectory(),t
 {
 	traj_type=rotate;
 	
-	period_s=0.001; //[s]
+	period_s=CONTROL_PERIOD_ms/1000.0; //[s]
 	
 	if(_theta_deg<0){
 		dir=-1;
@@ -242,7 +242,7 @@ ConstantVoltage::ConstantVoltage(float Vr, float Vl, float time_ms){
 	ax=0;
 	ay=0;
 	atheta=0;
-	period_s=0.001;
+	period_s=CONTROL_PERIOD_ms/1000.0;
 	t1_s=time_ms*0.001;
 	t_s=0;
 }
@@ -259,7 +259,7 @@ Line::Line(float _x, float _y, float _theta, float _v0, float _vmax, float _vf, 
 	vf=_vf;
 	a=_a;
 	j=_j;
-	period_s=0.001; //[s]
+	period_s=CONTROL_PERIOD_ms/1000.0; //[s]
 	t_s=0;
 
 	l=sqrtf(target_x*target_x+target_y*target_y);
@@ -307,7 +307,7 @@ int Line::Update(){
 Clothoid::Clothoid(clothoid_params params,int _cw_ccw){
 	traj_type=clothoid;
 	
-	period_s=0.001; //[s]
+	period_s=CONTROL_PERIOD_ms/1000.0; //[s]
 	cw_ccw=_cw_ccw;
 	t1=params.t1;
 	t2=params.t2;
