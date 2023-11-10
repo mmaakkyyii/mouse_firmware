@@ -2,7 +2,24 @@
 #include "gpio.h"
 #include "adc.h"
 
-WallSensor::WallSensor(){
+WallSensor::WallSensor():
+right(0),
+left(0),
+frontR(0),
+frontL(0),
+pre_right(0),
+pre_left(0),
+pre_frontR(0),
+pre_frontL(0),
+error_R(0),
+error_L(0),
+is_wallR(false),
+is_wallL(false),
+is_wallFR(false),
+is_wallFL(false),
+is_controlR(false),
+is_controlL(false)
+{
 	
 }
 void WallSensor::Init(){

@@ -1,6 +1,6 @@
 #include "trajectory.hpp"
 
-clothoid_params clothoid_200mm_d90deg_1={
+clothoid_params clothoid_200mm_90deg_1={
 0.049889357,
 0.274889357,
 0.324778714,
@@ -9,6 +9,16 @@ clothoid_params clothoid_200mm_d90deg_1={
 5,
 5
 };
+clothoid_params clothoid_150mm_90deg_1={
+0.066519143,
+0.366519143,
+0.433038286,
+4.285714286,
+150,
+5,
+5
+};
+
 
 clothoid_params clothoid_350mm_90deg_short={
 0.05927937,

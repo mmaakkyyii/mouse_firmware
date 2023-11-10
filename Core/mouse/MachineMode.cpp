@@ -341,7 +341,7 @@ no_hand_flag(false),
 timer(0),
 idle(true)
 {
-clothoid=clothoid_350mm_90deg_short;
+clothoid=clothoid_200mm_90deg_1;
 
 };
 void SerchRun::Loop(){
@@ -353,7 +353,7 @@ void SerchRun::Loop(){
 
 		printf("%d,(%d,%d)%d,%d|%d,%d\r\n",trajectory->GetTragType(),(int)mouse->mouse_pos_x,mouse->mouse_pos_y,(int)target_velocity_r,(int)target_velocity_l,(int)velocity_r,(int)velocity_l);
 	}
-	if(mouse->ui->GetSW1()==0){
+	if(mouse->ui->GetSW1()==0 && mouse->ui->GetSW2()==0){
 		mouse->buzzer->On_ms(300,100);
 		next_mode=modeSelect_mode;
 	}
@@ -373,7 +373,7 @@ void SerchRun::Init(){
 	turn_v_max=200;
 	turn_omega_max=2*100/50;
 	a_omega=80;
-	clothoid=clothoid_200mm_d90deg_1;
+	clothoid=clothoid_200mm_90deg_1;
 
 	mouse->mouse_pos_x=0;
 	mouse->mouse_pos_y=0;
@@ -415,11 +415,15 @@ void SerchRun::Interrupt_1ms(){
 		
 		switch(sla_mode){
 			case 0:
-				clothoid=clothoid_200mm_d90deg_1;
+				clothoid=clothoid_150mm_90deg_1;
+				v_max=180;
+				break;
+			case 1:
+				clothoid=clothoid_200mm_90deg_1;
 				v_max=200;
 				break;
 			default: 
-				clothoid=clothoid_200mm_d90deg_1;
+				clothoid=clothoid_200mm_90deg_1;
 				v_max=200;
 				break;
 		}
@@ -430,6 +434,7 @@ void SerchRun::Interrupt_1ms(){
 //		static int gesture_sensor_th=250;
 		if((mouse->wall_sensor->GetFrontR() > gesture_sensorR_th || mouse->wall_sensor->GetFrontL() > gesture_sensorL_th )){
 			gesture_flag=true;
+			mouse->buzzer->On_ms(300,40);
 		}
 		if((no_hand_flag==false) && gesture_flag && (mouse->wall_sensor->GetFrontR()< gesture_sensorR_th && mouse->wall_sensor->GetFrontL()< gesture_sensorL_th )){
 			no_hand_flag=true;
@@ -576,7 +581,7 @@ void FastRun::Init(){
 	mouse->motorR_PID->Reset();
 	mouse->motorL_PID->Reset();
 	
-	v_max=300;
+	v_max=600;
 	turn_v_max=250;
 	turn_omega_max=2*100/50;
 	a_omega=80;
@@ -628,14 +633,22 @@ void FastRun::Interrupt_1ms(){
 		mouse->ui->SetLED(sla_mode);
 
 		switch(sla_mode){
-			case 0:
-				clothoid=clothoid_200mm_d90deg_1;
-				v_max=200;
-				break;
-			default: 
-				clothoid=clothoid_200mm_d90deg_1;
-				v_max=200;
-				break;
+		case 0:
+			clothoid=clothoid_200mm_90deg_1;
+			v_max=200;
+			break;
+		case 1:
+			clothoid=clothoid_200mm_90deg_1;
+			v_max=400;
+			break;
+		case 2:
+			clothoid=clothoid_200mm_90deg_1;
+			v_max=600;
+			break;
+		default:
+			clothoid=clothoid_200mm_90deg_1;
+			v_max=200;
+			break;
 		}
 
 		static int gesture_sensorR_th=250;
