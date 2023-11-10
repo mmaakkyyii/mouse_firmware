@@ -2,7 +2,7 @@
 #define _MACHINE_PARAMATER_H_
 
 const float SECTION_WIDTH=90.0;
-const float TREAD_WIDTH=35;//TODO
+const float TREAD_WIDTH=35.54;//TODO
 const float TIYA_R=13.0/2.0;//TODO 12.75
 const float MACHINE_BACK_LENGTH=90/2.0-0.3-25;
 const float MACHINE_BACK_VOLTAGE=1;//TODO
