@@ -214,7 +214,7 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 						);
 				}
 			}else{
-				mouse->buzzer->On_ms(200,100);
+				mouse->buzzer->On_ms(200,50);
 				int wall = mouse->GetWallInfo();
 				mouse->maze_solver->adachi.SetMap(mouse->mouse_pos_x,mouse->mouse_pos_y,wall,mouse->mouse_dir);
 
@@ -1105,7 +1105,7 @@ void Debug::Interrupt_1ms(){
 			turn_omega_max=2*100/50;
 			a_omega=80;
 
-			trajectory= std::unique_ptr<Line>(new Line(0.0, SECTION_WIDTH*3, 0.0, 0, 200, 0, 500.0, 0.0));
+			trajectory= std::unique_ptr<Line>(new Line(0.0, SECTION_WIDTH * 15, 0.0, 0, 170, 0, 500.0, 0.0));
 			//trajectory= std::unique_ptr<Rotate>(new Rotate(360*10,turn_omega_max,a_omega));
 			mouse->mouse_pos_y++;
 			//trajectory=new Rotate(90, 0, 100.0, 0, 1);
@@ -1145,10 +1145,10 @@ void Debug::Interrupt_1ms(){
 				log_data[log_index][3]=(int)(velocity_l);
 				log_index++;
 			}else{
-				mouse->motors->SetVoltageR(0);
-				mouse->motors->SetVoltageL(0);
-				next_mode=modeSelect_mode;
-				mouse->buzzer->On_ms(300,100);
+//				mouse->motors->SetVoltageR(0);
+//				mouse->motors->SetVoltageL(0);
+//				next_mode=modeSelect_mode;
+//				mouse->buzzer->On_ms(300,100);
 			}
 //*/
 

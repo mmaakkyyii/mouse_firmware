@@ -147,7 +147,9 @@ class ParameterSetting:public MachineMode{
 public:
 	void Loop(){};
 	void Init(){};
-	void Interrupt_1ms(){};
+	void Interrupt_1ms(){
+		next_mode=modeSelect_mode;
+	};
 	ParameterSetting(Mouse* _mouse):MachineMode(_mouse){
 	current_mode=parameterSetting_mode;
 	next_mode=parameterSetting_mode;
