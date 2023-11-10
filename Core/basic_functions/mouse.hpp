@@ -32,13 +32,11 @@ public:
 	Localization* localization;
 	Encorders* encorders;
 	IMU* imu;
-	
-	MazeSolver* maze_solver;
-
 	WallSensor* wall_sensor;
 	BatteryCheck* battery_check;
 	Buzzer* buzzer;
 	UI* ui;
+	MazeSolver* maze_solver;
 
 	int mouse_pos_x;
 	int mouse_pos_y;

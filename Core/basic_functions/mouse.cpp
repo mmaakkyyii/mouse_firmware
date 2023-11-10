@@ -22,10 +22,17 @@ Mouse::Mouse(PID_Controler* motorR, PID_Controler* motorL, Motors* _motors, Loca
  maze_solver(_maze_solver)
  {
 	//mode=new ModeSelect();
-	period_ms=1.0;
+	period_ms=CONTROL_PERIOD_ms;
 	
 	v_max=350;
 	turn_v_max=200;
+	goal_time=0;
+	mouse_pos_x=0;
+	mouse_pos_y=0;
+	mouse_dir=North;
+	goal_pos_x=GOAL_X;
+	goal_pos_y=GOAL_Y;
+	wall_mask=USE_UNKOWN_WALL_MASK;
 
 }
 
@@ -112,179 +119,6 @@ int Mouse::GetWallInfo(){
 
 }
 
-/*
-
-void Mouse::SerchRunMode(){
-	if(trajectory->Update()){
-		
-		ui.SetLED( wall_sensor->GetWallL() <<3 |  
-			   wall_sensor->GetWallFL()<<2 |
-			   wall_sensor->GetWallFR()<<1 |  
-			   wall_sensor->GetWallR()
-			 );
-		
-		maze_solver.adachi.MakeStepMap(goal_pos_x,goal_pos_y,wall_mask);
- 		
-		if(mouse_pos_x==goal_pos_x && mouse_pos_y==goal_pos_y ){
-			goal_time++;
-			if(goal_time%2==1){
-				goal_pos_x = 0;
-				goal_pos_y = 0;
-			}else if(goal_time%2==0){
-				goal_pos_x = GOAL_X;
-				goal_pos_y = GOAL_Y;
-				wall_mask=UNUSE_UNKOWN_WALL_MASK;
-
-			}
-			switch(mouse_dir){
-			case North:
-				mouse_dir=South;
-				mouse_pos_y--;
-				break;
-			case West:
-				mouse_dir=East;
-				mouse_pos_x++;
-				break;
-			case South:
-				mouse_dir=North;
-				mouse_pos_y++;
-				break;
-			case East:
-				mouse_dir=West;
-				mouse_pos_x--;
-				break;
-			}
-			
-			delete trajectory;
-			trajectory=new DoubleTrajectory(
-				new DoubleTrajectory(
-					new Line(0.0, 180.0/2, 0.0 , v_max, v_max, 0.0, 10000.0, 0.0),
-					new Rotate(180, 0, turn_v_max, 0, 1)
-				),
-				new DoubleTrajectory(
-					new Stay(2000),
-					new Line(0.0, 180/2.0, 0.0, 0, v_max, v_max, 10000.0, 0.0)
-				)
-				);
-		}else{
-
-			if(wall_mask==USE_UNKOWN_WALL_MASK){
-			
-			int wall = GetWallInfo();
-
-			maze_solver.adachi.SetMap(mouse_pos_x,mouse_pos_y,wall,mouse_dir);
-			}
-			Dirction pre_mouse_dir = mouse_dir;
-			
-			Dirction next_dir = maze_solver.adachi.GetNextDirection(mouse_pos_x,mouse_pos_y,mouse_dir);
-			switch(next_dir){
-			case North:
-				mouse_dir=North;
-				mouse_pos_y++;
-				break;
-			case West:
-				mouse_dir=West;
-				mouse_pos_x--;
-				break;
-			case South:
-				mouse_dir=South;
-				mouse_pos_y--;
-				break;
-			case East:
-				mouse_dir=East;
-				mouse_pos_x++;
-				break;
-			}
-
-			
-			switch( (int)next_dir - (int)pre_mouse_dir ){
-			case -3:
-				delete trajectory;
-				trajectory=new MultTrajectory(
-					new Line(0.0, 35.0, 0.0, v_max, v_max, v_max, 10000.0, 0.0),
-					new Slalom(90,50.0, 0, v_max, 0, 1),
-					new Line(0.0, 35.0, 0.0, v_max, v_max, v_max, 10000.0, 0.0)
-					);
-	//			run_plan[index]=TurnLeft;
-				break;
-			case -2:
-				delete trajectory;
-				trajectory=new MultTrajectory(
-					new Line(0.0, 180.0/2.0, 0.0, v_max, v_max, v_max, 4000.0, 0.0),
-					new Rotate(180, 0, turn_v_max, 0, 1),
-					new Line(0.0, 180/2.0, 0.0, v_max, v_max, v_max, 10000.0, 0.0)
-					);
-	//			run_plan[index]=Turn;
-				break;
-			case -1:
-				delete trajectory;
-				trajectory=new MultTrajectory(
-					new Line(0.0, 35.0, 0.0, v_max, v_max, v_max, 10000.0, 0.0),
-					new Slalom(-90,50.0, 0, v_max, 0, 1),
-					new Line(0.0, 35.0, 0.0, v_max, v_max, v_max, 10000.0, 0.0)
-					);
-	//			run_plan[index]=TurnRight;
-				break;
-			case 0:
-				delete trajectory;
-				trajectory=new Line(0.0, 180.0, 0.0, v_max, v_max, v_max, 10000.0, 0.0);
-	//			run_plan[index]=Forward;
-				break;
-			case 1:
-				delete trajectory;
-				trajectory=new MultTrajectory(
-					new Line(0.0, 35.0, 0.0, v_max, v_max, v_max, 10000.0, 0.0),
-					new Slalom(90,50.0, 0, v_max, 0, 1),
-					new Line(0.0, 35.0, 0.0, v_max, v_max, v_max, 10000.0, 0.0)
-					);
-	//			run_plan[index]=TurnLeft;
-				break;
-			case 2:
-				delete trajectory;
-				trajectory=new MultTrajectory(
-					new Line(0.0, 180.0/2.0, 0.0, v_max, v_max, v_max, 4000.0, 0.0),
-					new Rotate(180, 0, turn_v_max, 0, 1),
-					new Line(0.0, 180/2.0, 0.0, v_max, v_max, v_max, 10000.0, 0.0)
-					);
-	//			run_plan[index]=Turn;
-				break;
-			case 3:
-				delete trajectory;
-				trajectory=new MultTrajectory(
-					new Line(0.0, 35.0, 0.0, v_max, v_max, v_max, 10000.0, 0.0),
-					new Slalom(-90,50.0, 0, v_max, 0, 1),
-					new Line(0.0, 35.0, 0.0, v_max, v_max, v_max, 10000.0, 0.0)
-					);
-	//			run_plan[index]=TurnRight;
-				break;
-			default:
-				delete trajectory;
-				trajectory=new Stop();
-				break;
-			}
-		}
-	}
-	trajectory->GetTargetPosition(&target_x,&target_y,&target_theta);
-	trajectory->GetTargetVelocity(&target_vx,&target_vy,&target_omega);
-
-	float Kp_wall=0.001;
-	float wall_control=Kp_wall*wall_sensor->GetError();
-	if(trajectory->GetTragType()==line)target_omega+=wall_control;
-
-	Jacobian(target_vy,target_omega,&target_velocity_r,&target_velocity_l);
-	
-	motorR_PID->SetTarget(target_velocity_r);
-	motorL_PID->SetTarget(target_velocity_l);
-
-	velocity_r=GetVelociryR_mm_s();
-	velocity_l=GetVelociryL_mm_s();
-	V_r=motorR_PID->Update(velocity_r);
-	V_l=motorL_PID->Update(velocity_l);
-
-	SetVoltageR(V_r);
-	SetVoltageL(V_l);
-}
-*/
 
 int count=0;
 void Mouse::Interrupt_1ms(){

@@ -20,7 +20,7 @@ float acc;
 bool goal_flag=false;
 
 const int log_data_num=2000;
-int log_data[log_data_num][2];
+int log_data[log_data_num][4];
 int log_index=0;
 float gyro[3];
 int gyro_raw[3];
@@ -317,10 +317,29 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 /////////////////////////////
 SerchRun::SerchRun(Mouse* _mouse)
 :MachineMode(_mouse),
-idle(true),
+velocity_l(0),
+velocity_r(0),
+target_velocity_l(0),
+target_velocity_r(0),
+V_r(0),
+V_l(0),
+target_x(0),
+target_y(0),
+target_theta(0),
+current_x(0),
+current_y(0),
+current_theta(0),
+target_vx(0),
+target_vy(0),
+target_omega(0),
+current_vx(0),
+current_vy(0),
+current_omega(0),
+sla_mode(0),
 gesture_flag(false),
 no_hand_flag(false),
-timer(0)
+timer(0),
+idle(true)
 {
 clothoid=clothoid_350mm_90deg_short;
 
@@ -376,22 +395,20 @@ void SerchRun::Interrupt_1ms(){
 	static int log_index=0;
 
 	if(idle){
-		static int sw1,sw2,sw3,pre_sw1,pre_sw2,pre_sw3;
+		static int sw1,sw2,pre_sw1,pre_sw2;
 
 		pre_sw1=sw1;
 		pre_sw2=sw2;
-		pre_sw3=sw3;
 		sw1=mouse->ui->GetSW1();
 		sw2=mouse->ui->GetSW2();
-		sw3=mouse->ui->GetSW3();
 
 		if(pre_sw1>sw1){
 			sla_mode++;
 			mouse->buzzer->On_ms(300,40);
-		}
-		if(pre_sw3>sw3){
-			sla_mode--;
-			mouse->buzzer->On_ms(400,40);
+			if(sla_mode>16){
+				sla_mode=0;
+				mouse->buzzer->On_ms(500,40);
+			}
 		}
 		mouse->ui->SetLED(sla_mode);
 
@@ -492,8 +509,6 @@ void SerchRun::Interrupt_1ms(){
 
 	}
 	if(end_serch_flag){
-		printf("deleat\r\n");
-		//delete trajectory;
 		next_mode=modeSelect_mode;
 	}
 }
@@ -501,16 +516,38 @@ void SerchRun::Interrupt_1ms(){
 /////////////////////////////
 FastRun::FastRun(Mouse* _mouse):
 MachineMode(_mouse),
+sla_mode(0),
+velocity_l(0),
+velocity_r(0),
+target_velocity_l(0),
+target_velocity_r(0),
+V_r(0),
+V_l(0),
+target_x(0),
+target_y(0),
+target_theta(0),
+current_x(0),
+current_y(0),
+current_theta(0),
+target_vx(0),
+target_vy(0),
+target_omega(0),
+current_vx(0),
+current_vy(0),
+current_omega(0),
+gesture_flag(0),
+no_hand_flag(0),
+timer(0),
+goal(false),
 idle(true),
-gesture_flag(false),
-no_hand_flag(false),
-timer(0)
+path_length(0),
+path_index(0)
 {
 	clothoid=clothoid_350mm_90deg_short;
 
 };
 void FastRun::Loop(){
-	if(mouse->ui->GetSW2()==0 && mouse->ui->GetSW3()==0){
+	if(mouse->ui->GetSW2()==0 && mouse->ui->GetSW1()==0){
 		mouse->buzzer->On_ms(3000,100);
 		next_mode=modeSelect_mode;
 	}
@@ -583,10 +620,10 @@ void FastRun::Interrupt_1ms(){
 		if(pre_sw1>sw1){
 			sla_mode++;
 			mouse->buzzer->On_ms(300,40);
-		}
-		if(pre_sw3>sw3){
-			sla_mode--;
-			mouse->buzzer->On_ms(400,40);
+			if(sla_mode>16){
+				sla_mode=0;
+				mouse->buzzer->On_ms(500,40);
+			}
 		}
 		mouse->ui->SetLED(sla_mode);
 
@@ -779,7 +816,7 @@ LowBattery::LowBattery(Mouse* _mouse):MachineMode(_mouse){
 	next_mode=lowBattery_mode;
 };
 void LowBattery::Loop(){
-	printf("Battery Voltege is Low! %d\n\r",(int)(1000*mouse->battery_check->GetBatteryVoltage_V()));
+	printf("Battery Voltage is Low! %d\n\r",(int)(1000*mouse->battery_check->GetBatteryVoltage_V()));
 	mouse->motors->SetVoltageR(0);
 	mouse->motors->SetVoltageL(0);
 	if(mouse->ui->GetSW2()==0 && mouse->ui->GetSW3()==0){
@@ -803,6 +840,8 @@ void LowBattery::Interrupt_1ms(){
 /////////////////////////////
 DoNotRotate::DoNotRotate(Mouse* _mouse)
 :MachineMode(_mouse),
+gyro_theta(0),
+omega_z(0),
 idle(true),
 gesture_flag(false),
 no_hand_flag(false)
@@ -873,7 +912,7 @@ void DoNotRotate::Interrupt_1ms(){
 		mouse->motors->SetVoltageR(V_r);
 		mouse->motors->SetVoltageL(V_l);
 	
-		if(gyro_theta<-100 | gyro_theta>100 )
+		if(gyro_theta<-100 || gyro_theta>100 )
 		{
 			mouse->motors->SetVoltageR(0);
 			mouse->motors->SetVoltageL(0);
@@ -963,7 +1002,32 @@ void SensorCheck::Interrupt_1ms(){
 };
 
 /////////////////////////////
-Debug::Debug(Mouse* _mouse):MachineMode(_mouse){
+Debug::Debug(Mouse* _mouse)
+:MachineMode(_mouse),
+velocity_l(0),
+velocity_r(0),
+target_velocity_l(0),
+target_velocity_r(0),
+V_r(0),
+V_l(0),
+target_x(0),
+target_y(0),
+target_theta(0),
+current_x(0),
+current_y(0),
+current_theta(0),
+target_vx(0),
+target_vy(0),
+target_omega(0),
+current_vx(0),
+current_vy(0),
+current_omega(0),
+gesture_flag(false),
+no_hand_flag(false),
+timer(0),
+wait_ms(0),
+idle(true)
+{
 };
 void Debug::Loop(){
 	printf("%d,%d,%d,%d\r\n",(int)target_velocity_r,(int)target_velocity_l,(int)velocity_r,(int)velocity_l);
@@ -973,7 +1037,7 @@ void Debug::Init(){
 	current_mode=debug_mode;
 	next_mode=debug_mode;
 
-	printf("Start debud mode!\n\r");
+	printf("Start debug mode!\n\r");
 	v_max=400;
 	turn_v_max=300;
 	
@@ -1017,41 +1081,19 @@ void Debug::Interrupt_1ms(){
 		if(cal){
 			idle=false;
 
-			clothoid_params clothoid=clothoid_200mm_d90deg_1;
+//			clothoid_params clothoid=clothoid_200mm_d90deg_1;
 //			trajectory= std::unique_ptr<MultTrajectory>(new MultTrajectory(
 //					new Line(0.0, SECTION_WIDTH/2.0+clothoid.in_mm, 0.0, clothoid.v, clothoid.v, clothoid.v, 20000.0, 0.0),
 //					new Clothoid(clothoid,-1),
 //					new Line(0.0, clothoid.out_mm+SECTION_WIDTH/2.0, 0.0, clothoid.v, clothoid.v, 0, 20000.0, 0.0)
 //				));
 
-			trajectory= std::unique_ptr<Line>(new Line(0.0, SECTION_WIDTH*10, 0.0, 0, 200, 0, 500.0, 0.0));
-			//trajectory=new Rotate(180*10,turn_omega_max,a_omega);
-	//		trajectory=new DoubleTrajectory(
-	//			new MultTrajectory(
-	//					new Line(0.0, clothoid.in_mm+180/2, 0.0, 0, v_max, v_max, 10000.0, 0.0),
-	//					new Clothoid(clothoid,-1),
-	//					new Line(0.0, clothoid.out_mm+180/2, 0.0, v_max, v_max, 0, 10000.0, 0.0)
-	//			),
-	//			new Stay(2000));
-//			trajectory=new DoubleTrajectory(
-//				new MultTrajectory(
-//						new Line(0.0, 180+180/2, 0.0, 0, v_max, v_max, 10000.0, 0.0),
-						//new Clothoid(clothoid_400m_90deg_t1,clothoid_400m_90deg_t2,clothoid_400m_90deg_t3,v_max,clothoid_400m_90deg_omega,-1),
-//						new Line(0.0, 180+180/2, 0.0, v_max, v_max, 0, 10000.0, 0.0)
-//					),
-///				new Stay(2000));
+			turn_v_max=200;
+			turn_omega_max=2*100/50;
+			a_omega=80;
 
-			//mouse->trajectory=new Stop();
-			//mouse->ui->SetLED(15);
-//			delete trajectory;
-//			trajectory=new Clothoid(clothoid_350mm_90deg,1);
-//			trajectory=new DoubleTrajectory(
-//				new MultTrajectory(
-//						new Line(0.0, 180+180/2, 0.0, 0, v_max, v_max, 10000.0, 0.0),
-//						//new Clothoid(clothoid_400m_90deg_t1,clothoid_400m_90deg_t2,clothoid_400m_90deg_t3,v_max,clothoid_400m_90deg_omega,-1),
-//						new Line(0.0, 180+180/2, 0.0, v_max, v_max, 0, 10000.0, 0.0)
-//						),
-//				new Stay(2000));
+			trajectory= std::unique_ptr<Line>(new Line(0.0, SECTION_WIDTH*3, 0.0, 0, 200, 0, 500.0, 0.0));
+			//trajectory= std::unique_ptr<Rotate>(new Rotate(360*10,turn_omega_max,a_omega));
 			mouse->mouse_pos_y++;
 			//trajectory=new Rotate(90, 0, 100.0, 0, 1);
 		}
@@ -1061,18 +1103,6 @@ void Debug::Interrupt_1ms(){
 			end_serch_flag=true;
 
 		}else{
-/*			
-			if(log_index<log_data_num){
-				log_data[log_index][0]=(int)(target_omega*1000);
-				log_data[log_index][1]=(int)(gyro_raw[2]);
-				log_index++;
-			}else{
-				mouse->motors->SetVoltageR(0);
-				mouse->motors->SetVoltageL(0);
-				next_mode=modeSelect_mode;
-				mouse->buzzer->On_ms(3000,100);
-			}
-*/
 			trajectory->GetTargetPosition(&target_x, &target_y, &target_theta);
 			trajectory->GetTargetVelocity(&target_vx,&target_vy,&target_omega);
 
@@ -1093,6 +1123,22 @@ void Debug::Interrupt_1ms(){
 
 			mouse->motors->SetVoltageR(V_r);
 			mouse->motors->SetVoltageL(V_l);
+
+///*
+			if(log_index<log_data_num){
+				log_data[log_index][0]=(int)(target_velocity_r);
+				log_data[log_index][1]=(int)(velocity_r);
+				log_data[log_index][2]=(int)(target_velocity_l);
+				log_data[log_index][3]=(int)(velocity_l);
+				log_index++;
+			}else{
+				mouse->motors->SetVoltageR(0);
+				mouse->motors->SetVoltageL(0);
+				next_mode=modeSelect_mode;
+				mouse->buzzer->On_ms(300,100);
+			}
+//*/
+
 		}
 
 	}
@@ -1104,20 +1150,23 @@ void Debug::Interrupt_1ms(){
 }
 ///////////////////////////
 void LogOutput::Loop(){
-	for(int i=0;i<log_data_num;i++){
-		//printf("%d,%d,%d,%d\r\n",log_data[i][0],log_data[i][1],log_data[i][2],log_data[i][3]);
-		printf("%d,%d\r\n",log_data[i][0],log_data[i][1]);
-	}
-	next_mode=modeSelect_mode;
+
+	printf("%d,%d,%d,%d\r\n",log_data[index][0],log_data[index][1],log_data[index][2],log_data[index][3]);
+	index++;
+	if(index>log_data_num)next_mode=modeSelect_mode;
 }
 void LogOutput::Init(){
 	current_mode=logOutput_mode;
 	next_mode=logOutput_mode;
+	index=0;
 
 }
 void LogOutput::Interrupt_1ms(){
 }
-LogOutput::LogOutput(Mouse* _mouse):MachineMode(_mouse){
+LogOutput::LogOutput(Mouse* _mouse)
+:MachineMode(_mouse),
+index(0)
+{
 }
 
 

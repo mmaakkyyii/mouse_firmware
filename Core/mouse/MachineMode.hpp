@@ -21,14 +21,13 @@ typedef enum {
 
 class MachineMode{
 public:
-	MachineMode(Mouse* _mouse):mouse(_mouse){}
-	 ~MachineMode(){};
+	MachineMode(Mouse* _mouse):mouse(_mouse),current_mode(modeSelect_mode),next_mode(modeSelect_mode),low_batt_count(0){}
+	virtual ~MachineMode(){};
 	Mouse* mouse;
 	virtual void Loop(){};
 	virtual void Init(){};
 	virtual void Interrupt_1ms(){};
-	int IsOtherMode();
-	int low_batt_count;
+	int IsOtherMode(){return 0;};
 	void CheckBattery(){
 		if(mouse->battery_check->GetBatteryVoltage_V() < 3.5){
 			low_batt_count++;
@@ -45,6 +44,7 @@ public:
 protected:
 	ModeType current_mode;
 	ModeType next_mode;
+	int low_batt_count;
 };
 
 class Idle:public MachineMode{
@@ -56,7 +56,7 @@ public:
 	current_mode=idle_mode;
 	next_mode=idle_mode;
 	};
-	~Idle();
+	virtual ~Idle(){};
 };
 class LowBattery:public MachineMode{
 public:
@@ -64,7 +64,7 @@ public:
 	void Init();
 	void Interrupt_1ms();
 	LowBattery(Mouse* _mouse);
-	~LowBattery();
+	virtual ~LowBattery(){};
 };
 class ModeSelect:public MachineMode{
 public:
@@ -75,7 +75,7 @@ public:
 	void Init();
 	void Interrupt_1ms();
 	ModeSelect(Mouse* _mouse);
-	~ModeSelect();
+	virtual ~ModeSelect(){};
 };
 class SerchRun:public MachineMode{
 public:
@@ -83,12 +83,10 @@ public:
 	void Init();
 	void Interrupt_1ms();
 	SerchRun(Mouse* _mouse);
-	~SerchRun(){
-	};
+	virtual ~SerchRun(){};
 private:
 	std::unique_ptr<Trajectory> trajectory;
 	clothoid_params clothoid;
-	char sla_mode;
 
 	float velocity_l,velocity_r;
 	float target_velocity_l,target_velocity_r;
@@ -100,6 +98,8 @@ private:
 	float current_x,current_y,current_theta;
 	float target_vx,target_vy,target_omega;
 	float current_vx,current_vy,current_omega;
+
+	char sla_mode;
 
 	int gesture_flag;
 	int no_hand_flag;
@@ -116,8 +116,7 @@ public:
 	void Init();
 	void Interrupt_1ms();
 	FastRun(Mouse* _mouse);
-	~FastRun(){
-	};
+	virtual ~FastRun(){};
 private:
 	std::unique_ptr<Trajectory> trajectory;
 	clothoid_params clothoid;
@@ -153,7 +152,7 @@ public:
 	current_mode=parameterSetting_mode;
 	next_mode=parameterSetting_mode;
 	};
-	~ParameterSetting();
+	virtual ~ParameterSetting(){};
 };
 
 class DoNotRotate:public MachineMode{
@@ -162,15 +161,15 @@ public:
 	void Init();
 	void Interrupt_1ms();
 	DoNotRotate(Mouse* _mouse);
-	~DoNotRotate(){};
+	virtual ~DoNotRotate(){};
 	
 	float gyro_theta;
 	float omega_z;
 
+	bool idle;
 	int gesture_flag;
 	int no_hand_flag;
 
-	bool idle;
 
 };
 class SensorCheck:public MachineMode{
@@ -179,7 +178,7 @@ public:
 	void Init();
 	void Interrupt_1ms();
 	SensorCheck(Mouse* _mouse);
-	~SensorCheck();
+	virtual ~SensorCheck(){};
 	float theta_gyro=0;
 };
 class LogOutput:public MachineMode{
@@ -188,7 +187,8 @@ public:
 	void Init();
 	void Interrupt_1ms();
 	LogOutput(Mouse* _mouse);
-	~LogOutput(){};
+	virtual ~LogOutput(){};
+	int index;
 };
 class Debug:public MachineMode{
 public:
@@ -196,7 +196,7 @@ public:
 	void Init();
 	void Interrupt_1ms();
 	Debug(Mouse* _mouse);
-	~Debug();
+	virtual ~Debug(){};
 private:
 	std::unique_ptr<Trajectory> trajectory;
 
