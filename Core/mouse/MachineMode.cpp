@@ -243,13 +243,13 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 					break;
 				}
 
-				
+				float a_clothoid_line=8000.0;
 				switch( (int)next_dir - (int)pre_mouse_dir ){
 				case -3:
 					traj=new MultTrajectory(
-						new Line(0.0, clothoid.in_mm, 0.0, v_max, clothoid.v, clothoid.v, 10000.0, 0.0),
+						new Line(0.0, clothoid.in_mm, 0.0, v_max, v_max, clothoid.v, a_clothoid_line, 0.0),
 						new Clothoid(clothoid,1),
-						new Line(0.0, clothoid.out_mm, 0.0, clothoid.v, clothoid.v, v_max, 10000.0, 0.0)
+						new Line(0.0, clothoid.out_mm, 0.0, clothoid.v, v_max, v_max, a_clothoid_line, 0.0)
 						);
 					break;
 				case -2:
@@ -268,9 +268,9 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 					break;
 				case -1:
 					traj=new MultTrajectory(
-						new Line(0.0, clothoid.in_mm, 0.0, v_max, clothoid.v, clothoid.v, 10000.0, 0.0),
+						new Line(0.0, clothoid.in_mm, 0.0, v_max, v_max, clothoid.v, a_clothoid_line, 0.0),
 						new Clothoid(clothoid,-1),
-						new Line(0.0, clothoid.out_mm, 0.0, clothoid.v, clothoid.v, v_max, 10000.0, 0.0)
+						new Line(0.0, clothoid.out_mm, 0.0, clothoid.v, v_max, v_max, a_clothoid_line, 0.0)
 						);
 					break;
 				case 0:
@@ -278,9 +278,9 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 					break;
 				case 1:
 					traj=new MultTrajectory(
-						new Line(0.0, clothoid.in_mm, 0.0, v_max, clothoid.v, clothoid.v, 10000.0, 0.0),
+						new Line(0.0, clothoid.in_mm, 0.0, v_max, v_max, clothoid.v, a_clothoid_line, 0.0),
 						new Clothoid(clothoid,1),
-						new Line(0.0, clothoid.out_mm, 0.0, clothoid.v, clothoid.v, v_max, 10000.0, 0.0)
+						new Line(0.0, clothoid.out_mm, 0.0, clothoid.v, v_max, v_max, a_clothoid_line, 0.0)
 						);
 					break;
 				case 2:
@@ -300,9 +300,9 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 					break;
 				case 3:
 					traj=new MultTrajectory(
-						new Line(0.0, clothoid.in_mm, 0.0, v_max, clothoid.v, clothoid.v, 10000.0, 0.0),
+						new Line(0.0, clothoid.in_mm, 0.0, v_max, v_max, clothoid.v, a_clothoid_line, 0.0),
 						new Clothoid(clothoid,-1),
-						new Line(0.0, clothoid.out_mm, 0.0, clothoid.v, clothoid.v, v_max, 10000.0, 0.0)
+						new Line(0.0, clothoid.out_mm, 0.0, clothoid.v, v_max, v_max, a_clothoid_line, 0.0)
 						);
 					break;
 				default:

@@ -264,6 +264,16 @@ Line::Line(float _x, float _y, float _theta, float _v0, float _vmax, float _vf, 
 
 	l=sqrtf(target_x*target_x+target_y*target_y);
 
+	if(l-(vmax*vmax-v0*v0)/(2*a)-(vmax*vmax-vf*vf)/(2*a) > 0){
+		t1=(vmax-v0)/a; //[s]
+		t2=l/vmax-(vmax*vmax-v0*v0)/(2*a*vmax)-(vmax*vmax-vf*vf)/(2*a*vmax)+t1;
+		t3=(vmax-vf)/a+t2;
+	}else{
+		t1=(-v0+sqrt(v0*v0 - (v0*v0 -3*v0*vf+2*vf*vf)/2 + a*l ))/(a);
+		t2=t1;
+		t3=(v0+a*t1-vf)/a+t1;
+	}
+	/*
 	if(l-(vmax*vmax+v0*v0)/(2*a)-(vmax*vmax+vf*vf)/(2*a)>0){
 		t1=(vmax-v0)/a; //[s]
 		t2=l/vmax-(vmax*vmax-v0*v0)/(2*a*vmax)-(vmax*vmax-vf*vf)/(2*a*vmax)+t1;
@@ -274,8 +284,8 @@ Line::Line(float _x, float _y, float _theta, float _v0, float _vmax, float _vf, 
 		t1=(-2*a*v0+sqrtf(4*a*a*v0*v0 - 2*a*a*(v0*v0-vf*vf-2*a*l)))/(2*a*a);
 		t3=(v0+a*t1-vf)/a+t1;		
 		t2=t1;
-
 	}
+	*/
 }
 
 int Line::Update(){

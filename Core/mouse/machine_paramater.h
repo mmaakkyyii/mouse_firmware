@@ -21,6 +21,6 @@ const float Kp_motorL=0.002;
 const float Ki_motorL=0.0015;
 const float Kd_motorL=0.00;
 
-const float Kp_wall=0.01;//
+const float Kp_wall=0.005;//
 
 #endif //_MACHINE_PARAMATER_H_
