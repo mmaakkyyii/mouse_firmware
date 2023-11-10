@@ -257,7 +257,7 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 						new Line(0.0, SECTION_WIDTH/2.0, 0.0, v_max, v_max, v_max, 4000.0, 0.0),
 						new MultTrajectory(
 							new Rotate(180,turn_omega_max,a_omega),
-							new ConstantVoltage(-MACHINE_BACK_VOLTAGE,-MACHINE_BACK_VOLTAGE,MACHINE_BACK_TIME),
+							new ConstantVoltage(-MACHINE_BACK_VOLTAGE_R,-MACHINE_BACK_VOLTAGE_L,MACHINE_BACK_TIME),
 							new Stay(100)
 							//new Stay(100)	
 							//new Line(0.0, -180.0, 0.0, 0, 400, 0, 400.0, 0.0)
@@ -289,7 +289,7 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 						new MultTrajectory(
 							new Rotate(180,turn_omega_max,a_omega),
 							//new Stay(100)	
-							new ConstantVoltage(-MACHINE_BACK_VOLTAGE,-MACHINE_BACK_VOLTAGE,MACHINE_BACK_TIME),
+							new ConstantVoltage(-MACHINE_BACK_VOLTAGE_R,-MACHINE_BACK_VOLTAGE_L,MACHINE_BACK_TIME),
 							new Stay(100)
 
 							//new Line(0.0, -180.0, 0.0, 0, 400, 0, 400.0, 0.0)
