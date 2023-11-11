@@ -4,7 +4,7 @@
 
 #include "machine_paramater.h"
 
-Trajectory::Trajectory():x(0),y(0),theta(0),vx(0),vy(0),omega(0),v0(0),vmax(0),vf(0),ax(0),ay(0),atheta(0),traj_type(none)
+Trajectory::Trajectory():period_s(CONTROL_PERIOD_ms),x(0),y(0),theta(0),vx(0),vy(0),omega(0),v0(0),vmax(0),vf(0),ax(0),ay(0),atheta(0),traj_type(none)
 {
 }
 
@@ -42,6 +42,7 @@ Stay::Stay(int t_ms):Trajectory(){
 	traj_type=stay;
 	t1=t_ms*0.001;
 	period_s=CONTROL_PERIOD_ms/1000.0;
+	t_s=0;
 }
 int Stay::Update(){
 	int is_finish=0;
@@ -247,18 +248,21 @@ ConstantVoltage::ConstantVoltage(float Vr, float Vl, float time_ms){
 	t_s=0;
 }
 
-Line::Line(float _x, float _y, float _theta, float _v0, float _vmax, float _vf, float _a, float _j):Trajectory()
+Line::Line(float _x, float _y, float _theta, float _v0, float _vmax, float _vf, float _a, float _j)
+:Trajectory(),
+target_x(_x),
+target_y(_y),
+target_theta(_theta),
+a(_a),
+j(_j),
+v(_v0),
+pos(0)
 {
 	traj_type=line;
-	
-	target_x=_x;
-	target_y=_y;
-	target_theta=_theta;
+
 	v0=_v0;
 	vmax=_vmax;
 	vf=_vf;
-	a=_a;
-	j=_j;
 	period_s=CONTROL_PERIOD_ms/1000.0; //[s]
 	t_s=0;
 

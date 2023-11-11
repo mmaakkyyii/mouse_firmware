@@ -9,6 +9,7 @@
 IMU::IMU(){
 	calibration_flag=false;
 	calibration_finish_flag=false;
+	cal_num=0;
 }
 
 void IMU::Init(){

@@ -1,13 +1,23 @@
 #include "encorder.hpp"
 
-Encorders::Encorders(int _period_ms):period_ms(_period_ms),pulseR(0),pulseL(0),radius_mm(TIYA_R){
+Encorders::Encorders(int _period_ms)
+:
+radius_mm(TIYA_R),
+period_ms(_period_ms),
+pulseR(0),
+pulseL(0),
+angle_dataL(0),
+angle_dataR(0),
+pre_angle_dataL(0),
+pre_angle_dataR(0)
+{
+	pluse2mm =  1/(PPR)*3.14*gear_ratio*radius_mm;
 	
 }
 
 void Encorders::Init(){
 	InitEncorderL();
 	InitEncorderR();
-	pluse2mm =  1/(PPR)*3.14*gear_ratio*radius_mm;
 	pulseR=0;
 	pulseL=0;
 	HAL_SPI_TransmitReceive(&hspi2, (uint8_t *)tx_dataL, (uint8_t *)&angle_dataL, 1,100);

@@ -31,7 +31,14 @@ ModeSelect::ModeSelect(Mouse* _mouse):MachineMode(_mouse){
 	current_mode=modeSelect_mode;
 	next_mode=modeSelect_mode;
 	mode_val=0;
+	sw1=mouse->ui->GetSW1();
+	pre_sw1=sw1;
+	sw2=mouse->ui->GetSW2();
+	pre_sw2=sw2;
+	sw3=mouse->ui->GetSW3();
+	pre_sw3=sw3;
 }
+
 void ModeSelect::Init(){
 	sw1=mouse->ui->GetSW1();
 	pre_sw1=sw1;
