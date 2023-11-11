@@ -428,9 +428,13 @@ void SerchRun::Interrupt_1ms(){
 				break;
 			case 1:
 				clothoid=clothoid_150mm_90deg_1;
-				v_max=150;
+				v_max=165;
 				break;
 			case 2:
+				clothoid=clothoid_150mm_90deg_1;
+				v_max=150;
+				break;
+			case 3:
 				clothoid=clothoid_200mm_90deg_1;
 				v_max=200;
 				break;
@@ -654,7 +658,27 @@ void FastRun::Interrupt_1ms(){
 			break;
 		case 2:
 			clothoid=clothoid_200mm_90deg_1;
+			v_max=500;
+			break;
+		case 3:
+			clothoid=clothoid_200mm_90deg_1;
 			v_max=600;
+			break;
+		case 4:
+			clothoid=clothoid_200mm_90deg_1;
+			v_max=700;
+			break;
+		case 5:
+			clothoid=clothoid_200mm_90deg_1;
+			v_max=800;
+			break;
+		case 6:
+			clothoid=clothoid_200mm_90deg_1;
+			v_max=900;
+			break;
+		case 7:
+			clothoid=clothoid_200mm_90deg_1;
+			v_max=1000;
 			break;
 		default:
 			clothoid=clothoid_200mm_90deg_1;
