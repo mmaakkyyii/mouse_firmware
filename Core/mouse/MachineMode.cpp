@@ -427,6 +427,10 @@ void SerchRun::Interrupt_1ms(){
 				v_max=180;
 				break;
 			case 1:
+				clothoid=clothoid_150mm_90deg_1;
+				v_max=150;
+				break;
+			case 2:
 				clothoid=clothoid_200mm_90deg_1;
 				v_max=200;
 				break;
