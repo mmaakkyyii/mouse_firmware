@@ -466,7 +466,6 @@ void SerchRun::Interrupt_1ms(){
 	}else{
 		if(trajectory->Update()){
 			trajectory = std::unique_ptr<Trajectory>(trajectryUpdate(mouse,clothoid));
-//			trajectory = trajectryUpdate(mouse,clothoid);
 			thetaa=0;
 			sum_theta=0;
 			log_index=0;
