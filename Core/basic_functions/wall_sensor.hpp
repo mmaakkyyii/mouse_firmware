@@ -21,8 +21,8 @@ public:
 private:
 	static const int WAITLOOP_SLED = 300;	//LED�����点�Ă���AD�ϊ����J�n����܂ł̎��ԉ҂��p�萔
 
-	static const int REF_SEN_R = 180;//
-	static const int REF_SEN_L = 180;//
+	static const int REF_SEN_R = 150;//
+	static const int REF_SEN_L = 150;//
 
 	static const int TH_CTRL_R = 70;	//�ǂ����邩�ۂ���臒l
 	static const int TH_CTRL_L = 70;	//�ǂ����邩�ۂ���臒l

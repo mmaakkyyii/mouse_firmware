@@ -214,7 +214,7 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 						);
 				}
 			}else{
-				mouse->buzzer->On_ms(200,50);
+				if(mouse->runing_buzzer)mouse->buzzer->On_ms(200,50);
 				int wall = mouse->GetWallInfo();
 				mouse->maze_solver->adachi.SetMap(mouse->mouse_pos_x,mouse->mouse_pos_y,wall,mouse->mouse_dir);
 
@@ -243,7 +243,7 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 					break;
 				}
 
-				float a_clothoid_line=8000.0;
+				float a_clothoid_line=1000.0;
 				switch( (int)next_dir - (int)pre_mouse_dir ){
 				case -3:
 					traj=new MultTrajectory(
@@ -386,6 +386,7 @@ void SerchRun::Init(){
 	idle=true;
 	end_serch_flag=false;
 	return_start_flag=false;
+	mouse->runing_buzzer=false;
 }
 
 

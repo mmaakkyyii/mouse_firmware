@@ -19,7 +19,8 @@ Mouse::Mouse(PID_Controler* motorR, PID_Controler* motorL, Motors* _motors, Loca
  battery_check(_battery_check),
  buzzer(_buzzer),
  ui(_ui),
- maze_solver(_maze_solver)
+ maze_solver(_maze_solver),
+ runing_buzzer(true)
  {
 	//mode=new ModeSelect();
 	period_ms=CONTROL_PERIOD_ms;

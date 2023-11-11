@@ -46,6 +46,7 @@ public:
 	int goal_pos_y;
 	int goal_time;
 	WallMask wall_mask;
+	bool runing_buzzer;
 
 	
 private:	
