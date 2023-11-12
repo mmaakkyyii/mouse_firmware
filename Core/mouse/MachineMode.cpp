@@ -830,7 +830,7 @@ void FastRun::Interrupt_1ms(){
 			
 			float Kp_wall_correction = 0;//0.004;
 			if(target_vy>700){
-				Kp_wall_correction=0.000004*(target_vy-700);//v=0~2000; 0~1300
+				Kp_wall_correction=0.00004*(target_vy-600);//v=0~2000; 0~1300
 			}
 
 			float wall_control=(Kp_wall+Kp_wall_correction)*mouse->wall_sensor->GetError();
