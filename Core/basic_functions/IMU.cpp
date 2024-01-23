@@ -96,6 +96,13 @@ void IMU::Update(){
 	gyro_data[1]=(int16_t) ((uint16_t)gyro_data_8bit[2]<<8 | (uint16_t)gyro_data_8bit[3]);
 	gyro_data[2]=(int16_t) ((uint16_t)gyro_data_8bit[4]<<8 | (uint16_t)gyro_data_8bit[5]);
 
+	Read(ACCEL_XOUT_H_ADDR,acc_data_8bit);
+	acc_data[0]=(int16_t) ((uint16_t)acc_data_8bit[0]<<8 | (uint16_t)acc_data_8bit[1]);
+	acc_data[1]=(int16_t) ((uint16_t)acc_data_8bit[2]<<8 | (uint16_t)acc_data_8bit[3]);
+	acc_data[2]=(int16_t) ((uint16_t)acc_data_8bit[4]<<8 | (uint16_t)acc_data_8bit[5]);
+
+
+
 	if(calibration_flag){
 		gyro_data_offset[2]+=gyro_data[2];
 		gyro_data[2]=-1;

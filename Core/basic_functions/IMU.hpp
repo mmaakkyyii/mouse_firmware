@@ -24,17 +24,18 @@ private:
 	void Read(uint8_t addr, uint8_t* data);
 	unsigned short Read16bit(unsigned char  addr);
 	const int gyro_sensitivity = 131;//131 LSB/(deg/s)
-	const int acc_sensitivity = 2;//2/ LSB/(m/s)
+	const float acc_sensitivity = 2048.0/9.8;// 16/ LSB/(m/ss)
 	
 	const int GYRO_CONFIG_ADDR = 0x1b;
-	const int ACCEL_XOUT_H_ADDR = 0x3b;
+	const int ACCEL_XOUT_H_ADDR = 0x1F;
 	const int TEMP_H_ADDR = 0x1D;
 	const int GYRO_XOUT_H_ADDR = 0x25;
 	const int WHO_AM_I_ADDR = 0x75;
 
 	int16_t gyro_data[3];
 	uint8_t gyro_data_8bit[14];
-	int acc_data[3];
+	int16_t acc_data[3];
+	uint8_t acc_data_8bit[14];
 	const float GYRO_FS=2000;
 
 	long int gyro_data_offset[3];

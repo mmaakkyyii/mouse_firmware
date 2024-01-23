@@ -55,8 +55,8 @@ void Mouse::Init(){
 
 	int map_data[MAZESIZE_X][MAZESIZE_Y]={0};
 	FlashGetMazeData(map_data);
-	FlashSetMazeData(map_data);
-	FlashGetMazeData(map_data);
+//	FlashSetMazeData(map_data);
+//	FlashGetMazeData(map_data);
 	maze_solver->Init();
 	//maze_solver->adachi.InitMaze(UNKNOWN,map_data);
 	maze_solver->adachi.SetMapArray(map_data);

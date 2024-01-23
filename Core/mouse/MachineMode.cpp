@@ -982,6 +982,8 @@ SensorCheck::SensorCheck(Mouse* _mouse):MachineMode(_mouse){
 	next_mode=sensorCheck_mode;
 }
 
+float acc_data[3];
+
 void SensorCheck::Loop(){
 //	printf("\x1b[2J");		//�N���A�X�N���[��[CLS]
 //	printf("\x1b[0;0H");	//�J�[�\����0,0�Ɉړ�
@@ -997,7 +999,9 @@ void SensorCheck::Loop(){
 			);
 	//*/
 //*
-			printf("%4d,%4d,%d,%d,%d,%d,%5d,%5d\r\n",
+			printf("%4d,%4d,%4d,%4d,%d,%d,%d,%d,%5d,%5d\r\n",
+				(int)(acc_data[0]*1000),
+				(int)(acc_data[1]*1000),
 				(int)(theta_gyro),
 				(int)(1000*mouse->battery_check->GetBatteryVoltage_V()),
 				mouse->wall_sensor->GetLeft(),
@@ -1018,6 +1022,7 @@ void SensorCheck::Init(){
 void SensorCheck::Interrupt_1ms(){
 	mouse->imu->GetGyro(gyro);
 	theta_gyro+=(gyro[2]*0.001);
+	mouse->imu->GetAcc(acc_data);
 
 	if(mouse->wall_sensor->GetWallFR() || mouse->wall_sensor->GetWallFL()){
 			mouse->motorR_PID->SetTarget(0);
