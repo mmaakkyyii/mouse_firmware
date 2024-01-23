@@ -6,6 +6,7 @@
 
 #include "usart.h"
 
+#include "flash_util.hpp"
 
 
 Mouse::Mouse(PID_Controler* motorR, PID_Controler* motorL, Motors* _motors, Localization* _localization, Encorders* _encorders,IMU* _imu, WallSensor* _wall_sensor, BatteryCheck* _battery_check, Buzzer* _buzzer,UI* _ui,MazeSolver* _maze_solver)
@@ -50,9 +51,16 @@ void Mouse::Init(){
 	
 	battery_check->Update();
 
+
+
 	int map_data[MAZESIZE_X][MAZESIZE_Y]={0};
+	FlashGetMazeData(map_data);
+	FlashSetMazeData(map_data);
+	FlashGetMazeData(map_data);
 	maze_solver->Init();
-	maze_solver->adachi.InitMaze(UNKNOWN,map_data);
+	//maze_solver->adachi.InitMaze(UNKNOWN,map_data);
+	maze_solver->adachi.SetMapArray(map_data);
+	FlashPrintMazeData(map_data);
 	mouse_pos_x=0;
 	mouse_pos_y=0;
 	mouse_dir=North;
@@ -70,7 +78,9 @@ void Mouse::Init(){
 	}
 	buzzer->Off();		//�u�U�[�̔��U���~������	
 
-	printf("Battery %d mV\r\n",(int)(battery_check->GetBatteryVoltage_V()*1000));
+	printf("Battery %d mV: %d|\r\n",(int)(battery_check->GetBatteryVoltage_V()*1000),map_data[0][0]);
+	//FlashSetMazeData(maze_solver->adachi.map);
+	//FlashPrintMazeData(maze_solver->adachi.map);
 
 //	delete trajectory;
 //	trajectory=new Line(0.0, 180.0/2, 0.0, 0, v_max, v_max, 10000.0, 0.0);

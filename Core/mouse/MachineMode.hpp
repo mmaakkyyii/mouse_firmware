@@ -15,7 +15,8 @@ typedef enum {
 	sensorCheck_mode=6,
 	debug_mode=7,
 	doNotRotate_mode=8,
-	logOutput_mode=9
+	logOutput_mode=9,
+	reset_map=15
 }ModeType;
 
 
@@ -221,5 +222,13 @@ private:
 	
 	
 };
-
+class ResetMap:public MachineMode{
+public:
+	void Loop();
+	void Init();
+	void Interrupt_1ms();
+	ResetMap(Mouse* _mouse):MachineMode(_mouse){};
+	virtual ~ResetMap(){};
+private:
+};
 #endif //_MACHINE_MODE_HPP_

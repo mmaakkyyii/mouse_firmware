@@ -8,6 +8,8 @@
 #include "MazeDef.hpp"
 #include "Adachi.hpp"
 
+#include "flash_util.hpp"
+
 bool end_serch_flag;
 bool return_start_flag;
 float v_max;
@@ -106,7 +108,9 @@ void ModeSelect::Interrupt_1ms(){
 			next_mode=logOutput_mode;
 			mouse->buzzer->On_ms(800,50);
 			break;
-		case 7:
+		case 15:
+			next_mode=reset_map;
+			mouse->buzzer->On_ms(800,50);
 			break;
 		}
 	}
@@ -169,6 +173,7 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 			mouse->maze_solver->adachi.MakeStepMap(mouse->goal_pos_x,mouse->goal_pos_y,mouse->wall_mask);
 	 		
 			if(mouse->mouse_pos_x==mouse->goal_pos_x && mouse->mouse_pos_y==mouse->goal_pos_y ){
+				FlashSetMazeData(mouse->maze_solver->adachi.map);
 				mouse->goal_time++;
 				if(mouse->goal_time%2==1){
 					mouse->goal_pos_x = 0;
@@ -1216,5 +1221,28 @@ LogOutput::LogOutput(Mouse* _mouse)
 index(0)
 {
 }
+
+void ResetMap::Loop(){};
+void ResetMap::Init(){
+	current_mode=reset_map;
+	next_mode=reset_map;
+	printf("ResetMap\r\n");
+	int map_data[MAZESIZE_X][MAZESIZE_Y]={0};
+	int i=0;
+	for(int x=0;x<MAZESIZE_X;x++){
+		for(int y=0;y<MAZESIZE_Y;y++){
+			map_data[x][y]=0;
+			i++;
+		}
+	}
+	mouse->maze_solver->adachi.InitMaze(UNKNOWN, map_data);
+	FlashSetMazeData(mouse->maze_solver->adachi.map);
+	//FlashPrintMazeData(mouse->maze_solver->adachi.map);
+
+};
+void ResetMap::Interrupt_1ms(){
+
+	next_mode=modeSelect_mode;
+};
 
 

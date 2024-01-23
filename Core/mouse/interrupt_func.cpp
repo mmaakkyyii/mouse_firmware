@@ -61,6 +61,11 @@ void int_1ms(){
 			mode = new LogOutput(&mouse);
 			mode->Init();
 			break;
+		case reset_map:
+			delete mode;
+			mode = new ResetMap(&mouse);
+			mode->Init();
+			break;
 		default:
 			break;
 		}
