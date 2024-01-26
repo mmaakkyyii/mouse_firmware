@@ -3,11 +3,16 @@
 
 #include "MazeDef.hpp"
 #include "stdint.h"
+#include "stdbool.h"
+
+const uint8_t param_data_num=8;
 
 void FlashInit();
 uint32_t FlashEraseData();
-void FlashGetMazeData(int data[MAZESIZE_X][MAZESIZE_Y]);
-void FlashSetMazeData(int data[MAZESIZE_X][MAZESIZE_Y]);
+void FlashGetData(int maze_data[MAZESIZE_X][MAZESIZE_Y],int param_data[param_data_num]);
+void FlashSetData(int maze_data[MAZESIZE_X][MAZESIZE_Y],int param_data[param_data_num]);
 void FlashPrintMazeData(int data[MAZESIZE_X][MAZESIZE_Y]);
+void FlashSetGoalFlag(bool flag);
+uint8_t FlashGetGoalFlag();
 
 #endif /* FLASH_UTIL_HPP_ */

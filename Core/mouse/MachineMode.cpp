@@ -173,7 +173,8 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 			mouse->maze_solver->adachi.MakeStepMap(mouse->goal_pos_x,mouse->goal_pos_y,mouse->wall_mask);
 	 		
 			if(mouse->mouse_pos_x==mouse->goal_pos_x && mouse->mouse_pos_y==mouse->goal_pos_y ){
-				FlashSetMazeData(mouse->maze_solver->adachi.map);
+				int param_data[8]={1,0,0,0,0,0,0,0};
+				FlashSetData(mouse->maze_solver->adachi.map,param_data);
 				mouse->goal_time++;
 				if(mouse->goal_time%2==1){
 					mouse->goal_pos_x = 0;
@@ -407,6 +408,7 @@ void SerchRun::Interrupt_1ms(){
 	static float sum_theta=0;
 	static int log_index=0;
 
+
 	if(idle){
 		static int sw1,sw2,pre_sw1,pre_sw2;
 
@@ -566,7 +568,8 @@ timer(0),
 goal(false),
 idle(true),
 path_length(0),
-path_index(0)
+path_index(0),
+crash_en(false)
 {
 	clothoid=clothoid_350mm_90deg_short;
 
@@ -587,7 +590,7 @@ void FastRun::Loop(){
 }
 void FastRun::Init(){
 	mouse->ui->SetLED(0);
-	if(goal_flag==false){
+	if(goal_flag==false && FlashGetGoalFlag()==0){
 		current_mode=fastRun_mode;
 		next_mode=modeSelect_mode;
 		mouse->buzzer->On_ms(2500,400);
@@ -631,7 +634,8 @@ void FastRun::Init(){
 }
 
 void FastRun::Interrupt_1ms(){
-
+	float acc_data[3];
+	mouse->imu->GetAcc(acc_data);
 	if(idle){
 		static int sw1,sw2,sw3,pre_sw1,pre_sw2,pre_sw3;
 
@@ -641,6 +645,12 @@ void FastRun::Interrupt_1ms(){
 		sw1=mouse->ui->GetSW1();
 		sw2=mouse->ui->GetSW2();
 		sw3=mouse->ui->GetSW3();
+
+		if(acc_data[2]<-9.8*2){
+			crash_en=true;
+			mouse->buzzer->On_ms(500,100);
+
+		}
 
 		if(pre_sw1>sw1){
 			sla_mode++;
@@ -716,6 +726,10 @@ void FastRun::Interrupt_1ms(){
 			//mouse->mouse_pos_y++;
 		}
 	}else{
+		if(acc_data[0]*acc_data[0]+acc_data[1]*acc_data[1]>crash_acc*crash_acc){
+			next_mode=modeSelect_mode;
+		}
+
 		if(trajectory->Update()){
 
 			//printf("path index:%d run:%d\r\n",path_index ,mouse->maze_solver->adachi.run_plan[path_index]);
@@ -999,7 +1013,8 @@ void SensorCheck::Loop(){
 			);
 	//*/
 //*
-			printf("%4d,%4d,%4d,%4d,%d,%d,%d,%d,%5d,%5d\r\n",
+			printf("%4d,%4d,%4d,%4d,%4d,%d,%d,%d,%d,%5d,%5d\r\n",
+				(int)(acc_data[0]*acc_data[0]+acc_data[1]*acc_data[1]),
 				(int)(acc_data[0]*1000),
 				(int)(acc_data[1]*1000),
 				(int)(theta_gyro),
@@ -1023,6 +1038,12 @@ void SensorCheck::Interrupt_1ms(){
 	mouse->imu->GetGyro(gyro);
 	theta_gyro+=(gyro[2]*0.001);
 	mouse->imu->GetAcc(acc_data);
+	float acc_th=1000;
+	if(acc_data[0]*acc_data[0]+acc_data[1]*acc_data[1]>acc_th){
+		mouse->buzzer->On_ms(3000,10);
+		next_mode=modeSelect_mode;
+
+	}
 
 	if(mouse->wall_sensor->GetWallFR() || mouse->wall_sensor->GetWallFL()){
 			mouse->motorR_PID->SetTarget(0);
@@ -1241,7 +1262,8 @@ void ResetMap::Init(){
 		}
 	}
 	mouse->maze_solver->adachi.InitMaze(UNKNOWN, map_data);
-	FlashSetMazeData(mouse->maze_solver->adachi.map);
+	int param_data[param_data_num]={0};
+	FlashSetData(mouse->maze_solver->adachi.map,param_data);
 	//FlashPrintMazeData(mouse->maze_solver->adachi.map);
 
 };

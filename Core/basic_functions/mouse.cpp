@@ -52,9 +52,9 @@ void Mouse::Init(){
 	battery_check->Update();
 
 
-
 	int map_data[MAZESIZE_X][MAZESIZE_Y]={0};
-	FlashGetMazeData(map_data);
+	int param_data[param_data_num]={0};
+	FlashGetData(map_data,param_data);
 //	FlashSetMazeData(map_data);
 //	FlashGetMazeData(map_data);
 	maze_solver->Init();

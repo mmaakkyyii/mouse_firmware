@@ -23,4 +23,7 @@ const float Kd_motorL=0.00;
 
 const float Kp_wall=0.005;//
 
+const float crash_acc=45.0;
+
+
 #endif //_MACHINE_PARAMATER_H_

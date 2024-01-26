@@ -142,7 +142,8 @@ private:
 	bool idle;
 	int path_length;
 	int path_index;
-	
+	bool crash_en;
+
 };
 class ParameterSetting:public MachineMode{
 public:
