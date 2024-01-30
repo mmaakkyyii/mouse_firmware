@@ -364,7 +364,7 @@ void SerchRun::Loop(){
 	}else{
 		//mouse->imu->GetGyro(gyro);
 
-		printf("%d,(%d,%d)%d,%d|%d,%d\r\n",trajectory->GetTragType(),(int)mouse->mouse_pos_x,mouse->mouse_pos_y,(int)target_velocity_r,(int)target_velocity_l,(int)velocity_r,(int)velocity_l);
+		printf("%d,(%d,%d)%d,%d|%d,%d|%d,%d\r\n",trajectory->GetTragType(),(int)mouse->mouse_pos_x,mouse->mouse_pos_y,(int)target_velocity_r,(int)target_velocity_l,(int )(V_r*1000),(int )(V_l*1000),(int)velocity_r,(int)velocity_l);
 	}
 	if(mouse->ui->GetSW1()==0 && mouse->ui->GetSW2()==0){
 		mouse->buzzer->On_ms(300,100);
@@ -477,9 +477,13 @@ void SerchRun::Interrupt_1ms(){
 	}else{
 		if(trajectory->Update()){
 			trajectory = std::unique_ptr<Trajectory>(trajectryUpdate(mouse,clothoid));
+			//trajectory =std::unique_ptr<Line>(new Line(0.0, SECTION_WIDTH, 0.0, v_max, v_max, v_max, 10000.0, 0.0));
+
 			thetaa=0;
 			sum_theta=0;
 			log_index=0;
+			mouse->motors->SetVoltageR(V_r);
+			mouse->motors->SetVoltageL(V_l);
 
 		}else{
 
