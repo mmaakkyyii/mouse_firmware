@@ -40,6 +40,9 @@ public:
 	float GetVelociryL_mm_s();
 	float GetVelociryR_mm_s();
 
+	int GetAngleL();
+	int GetAngleR();
+
 	int GetPulseL();
 	int GetPulseR();
 

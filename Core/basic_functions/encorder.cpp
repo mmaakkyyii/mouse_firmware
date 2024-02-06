@@ -62,6 +62,14 @@ void Encorders::Update(){
 	InterruptR();
 }
 
+int Encorders::GetAngleL(){
+	return angle_dataL;
+}
+int Encorders::GetAngleR(){
+	return angle_dataR;
+}
+
+
 int Encorders::GetPulseL(){
 	return pulseL;
 }
@@ -76,10 +84,27 @@ float Encorders::GetRPSR(){
 	return pulseR/period_ms;
 }
 
-
+float fc=0.0005;
 float Encorders::GetVelociryL_mm_s(){
-	return (float)pulseL/PPR*2*3.14*gear_ratio*radius_mm/(period_ms/1000.0);//�v�Z��������
+	static float pre_vel;
+	float period_s=(float)period_ms/1000.0;
+	float g =1.0/fc;
+	float x=(float)pulseL/PPR*2*3.14*gear_ratio*radius_mm;
+
+	float vel=(pre_vel+g*x)/(1+g*period_s);
+
+	pre_vel=vel;
+	return vel;
 }
 float Encorders::GetVelociryR_mm_s(){
-	return (float)pulseR/PPR*2*3.14*gear_ratio*radius_mm/(period_ms/1000.0);
+	static float pre_vel;
+	float period_s=(float)period_ms/1000.0;
+	float g =1.0/fc;
+	float x=(float)pulseR/PPR*2*3.14*gear_ratio*radius_mm;
+
+	float vel=(pre_vel+g*x)/(1+g*period_s);
+
+	pre_vel=vel;
+	return vel;
+//	return (float)pulseR/PPR*2*3.14*gear_ratio*radius_mm/(period_ms/1000.0);
 }

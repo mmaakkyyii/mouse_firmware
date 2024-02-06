@@ -12,6 +12,7 @@
 
 bool end_serch_flag;
 bool return_start_flag;
+bool flash_flag=false;
 float v_max;
 float turn_v_max;
 float turn_omega_max;
@@ -173,8 +174,7 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 			mouse->maze_solver->adachi.MakeStepMap(mouse->goal_pos_x,mouse->goal_pos_y,mouse->wall_mask);
 	 		
 			if(mouse->mouse_pos_x==mouse->goal_pos_x && mouse->mouse_pos_y==mouse->goal_pos_y ){
-				int param_data[8]={1,0,0,0,0,0,0,0};
-				FlashSetData(mouse->maze_solver->adachi.map,param_data);
+				flash_flag=true;
 				mouse->goal_time++;
 				if(mouse->goal_time%2==1){
 					mouse->goal_pos_x = 0;
@@ -205,7 +205,7 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 					break;
 				}
 				if(return_start_flag!=true){
-					mouse->buzzer->On_ms(240,500);
+					//mouse->buzzer->On_ms(240,500);
 					traj=new DoubleTrajectory(
 						new MultTrajectory(
 							new Line(0.0, SECTION_WIDTH/2, 0.0 , v_max, v_max, 0.0, 10000.0, 0.0),
@@ -218,7 +218,7 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 						)
 						);
 				}else{
-					mouse->buzzer->On_ms(240,500);
+					//mouse->buzzer->On_ms(240,500);
 					traj=new MultTrajectory(
 							new Line(0.0, SECTION_WIDTH/2, 0.0 , v_max, v_max, 0.0, 10000.0, 0.0),
 //							new Rotate(180, 0, turn_v_max, 0, 1),
@@ -355,7 +355,7 @@ timer(0),
 idle(true)
 {
 clothoid=clothoid_200mm_90deg_1;
-
+flash_flag=false;
 };
 void SerchRun::Loop(){
 	if(idle){
@@ -366,11 +366,18 @@ void SerchRun::Loop(){
 
 		printf("%d,(%d,%d)%d,%d|%d,%d|%d,%d\r\n",trajectory->GetTragType(),(int)mouse->mouse_pos_x,mouse->mouse_pos_y,(int)target_velocity_r,(int)target_velocity_l,(int )(V_r*1000),(int )(V_l*1000),(int)velocity_r,(int)velocity_l);
 	}
-	if(mouse->ui->GetSW1()==0 && mouse->ui->GetSW2()==0){
-		mouse->buzzer->On_ms(300,100);
-		next_mode=modeSelect_mode;
+	float acc_data[3];
+	mouse->imu->GetAcc(acc_data);
+	static int reverse_time=0;
+	if(acc_data[2]<-5.0){
+		reverse_time++;
+		if(reverse_time>50){
+			next_mode=modeSelect_mode;
+			mouse->buzzer->On_ms(240,40);
+		}
+	}else{
+		reverse_time=0;
 	}
-
 }
 
 void SerchRun::Init(){
@@ -420,12 +427,19 @@ void SerchRun::Interrupt_1ms(){
 		if(pre_sw1>sw1){
 			sla_mode++;
 			mouse->buzzer->On_ms(300,40);
-			if(sla_mode>16){
+			if(sla_mode>8){
 				sla_mode=0;
 				mouse->buzzer->On_ms(500,40);
 			}
 		}
-		mouse->ui->SetLED(sla_mode);
+		static int led=0;
+		static int led_timer=0;
+		led_timer++;
+		if(led_timer>200){
+			led_timer=0;
+			led=8-led;
+		}
+		mouse->ui->SetLED(sla_mode | led);
 
 		
 		switch(sla_mode){
@@ -435,15 +449,19 @@ void SerchRun::Interrupt_1ms(){
 				break;
 			case 1:
 				clothoid=clothoid_150mm_90deg_1;
-				v_max=165;
-				break;
-			case 2:
-				clothoid=clothoid_150mm_90deg_1;
 				v_max=150;
 				break;
-			case 3:
+			case 2:
 				clothoid=clothoid_200mm_90deg_1;
 				v_max=200;
+				break;
+			case 3:
+				clothoid=clothoid_150mm_90deg_1;
+				v_max=250;
+				break;
+			case 4:
+				clothoid=clothoid_200mm_90deg_1;
+				v_max=250;
 				break;
 			default: 
 				clothoid=clothoid_200mm_90deg_1;
@@ -502,7 +520,6 @@ void SerchRun::Interrupt_1ms(){
 			float e_theta=target_theta-thetaa;
 			sum_theta+=e_theta;
 			if(trajectory->GetTragType()==rotate){
-				mouse->buzzer->On_ms(250,30);
 
 				target_omega+= Kp_theta*e_theta + Ki_theta*sum_theta;
 				if(log_index<log_data_num-1){
@@ -510,6 +527,12 @@ void SerchRun::Interrupt_1ms(){
 					log_data[log_index][1]=(int)(thetaa*1000);
 					log_index++;
 				}
+			}else if(flash_flag==true && trajectory->GetTragType()==stay){
+				flash_flag=false;
+				mouse->buzzer->On_ms(500,500);
+				int param_data[8]={1,0,0,0,0,0,0,0};
+				FlashSetData(mouse->maze_solver->adachi.map,param_data);
+
 			}else{
 				sum_theta=0;
 				thetaa=0;
@@ -664,7 +687,15 @@ void FastRun::Interrupt_1ms(){
 				mouse->buzzer->On_ms(500,40);
 			}
 		}
-		mouse->ui->SetLED(sla_mode);
+		static int led=0;
+		static int led_timer=0;
+		led_timer++;
+		if(led_timer>100){
+			led_timer=0;
+			led=8-led;
+		}
+
+		mouse->ui->SetLED(sla_mode|led);
 
 		switch(sla_mode){
 		case 0:
@@ -686,18 +717,22 @@ void FastRun::Interrupt_1ms(){
 		case 4:
 			clothoid=clothoid_200mm_90deg_1;
 			v_max=700;
+			acc=5000;
 			break;
 		case 5:
 			clothoid=clothoid_200mm_90deg_1;
 			v_max=800;
+			acc=5000;
 			break;
 		case 6:
 			clothoid=clothoid_200mm_90deg_1;
 			v_max=900;
+			acc=5000;
 			break;
 		case 7:
 			clothoid=clothoid_200mm_90deg_1;
 			v_max=1000;
+			acc=5000;
 			break;
 		default:
 			clothoid=clothoid_200mm_90deg_1;
@@ -788,7 +823,7 @@ void FastRun::Interrupt_1ms(){
 				if(mouse->maze_solver->adachi.run_plan[path_index] == TurnRight){
 					path_index++;
 		//			mouse->mouse_dir=GetRotetaRight(mouse->mouse_dir);
-				printf("%d,%d,%d\r\n",(int)clothoid.v,(int)clothoid.in_mm,(int)clothoid.out_mm);
+//				printf("%d,%d,%d\r\n",(int)clothoid.v,(int)clothoid.in_mm,(int)clothoid.out_mm);
 
 					if(path_index>=path_length){
 						trajectory =std::unique_ptr<MultTrajectory>(new MultTrajectory(
@@ -805,7 +840,7 @@ void FastRun::Interrupt_1ms(){
 
 					}
 
-					printf("R\r\n");
+//					printf("R\r\n");
 				}else if(mouse->maze_solver->adachi.run_plan[path_index] == TurnLeft){
 					path_index++;
 		//			mouse->mouse_dir=GetRotetaLeft(mouse->mouse_dir);
@@ -823,7 +858,7 @@ void FastRun::Interrupt_1ms(){
 							new Line(0.0, clothoid.out_mm, 0.0, clothoid.v, clothoid.v+1, clothoid.v, 20000.0, 0.0)
 						));
 					}
-					printf("L\r\n");
+//					printf("L\r\n");
 				}else if(mouse->maze_solver->adachi.run_plan[path_index] == Forward){
 					while(mouse->maze_solver->adachi.run_plan[path_index] == Forward){
 						if(path_index<path_length){
@@ -840,7 +875,7 @@ void FastRun::Interrupt_1ms(){
 					}else{
 						trajectory=std::unique_ptr<Line>(new Line(0.0, (stright_num)*SECTION_WIDTH        , 0.0, clothoid.v, v_max, clothoid.v, acc, 0.0));
 					}
-					printf("S%d\r\n",stright_num);
+//					printf("S%d\r\n",stright_num);
 				}
 			}
 			
@@ -851,9 +886,9 @@ void FastRun::Interrupt_1ms(){
 			trajectory->GetTargetPosition(&target_x, &target_y, &target_theta);
 			trajectory->GetTargetVelocity(&target_vx,&target_vy,&target_omega);
 			
-			float Kp_wall_correction = 0;//0.004;
-			if(target_vy>700){
-				Kp_wall_correction=0.00004*(target_vy-600);//v=0~2000; 0~1300
+			float Kp_wall_correction = 0.004;//0.004;
+			if(target_vy>500){
+				Kp_wall_correction=0.00006*(target_vy-500);//v=0~2000; 0~1300
 			}
 
 			float wall_control=(Kp_wall+Kp_wall_correction)*mouse->wall_sensor->GetError();
@@ -1010,13 +1045,14 @@ void SensorCheck::Loop(){
 
 //	printf("%4d,%4d,%4d\r\n",mouse->imu->GetGzOffset(),(int)( gyro_raw[2]),(int)(1000*gyro[2]));
 	/*
-		printf("%4d,%4d,%4d\r\n",
-			(int)(1000*mouse->battery_check->GetBatteryVoltage_V()),
-			(int)(mouse->encorders->GetVelociryL_mm_s()),
-			(int)(mouse->encorders->GetVelociryR_mm_s())
+		printf("%4d,%4d,%4d,%4d\r\n",
+				(int)(mouse->encorders->GetAngleL()),
+				(int)(mouse->encorders->GetAngleR()),
+				(int)(mouse->encorders->GetVelociryL_mm_s()),
+				(int)(mouse->encorders->GetVelociryR_mm_s())
 			);
 	//*/
-//*
+/*
 			printf("%4d,%4d,%4d,%4d,%4d,%d,%d,%d,%d,%5d,%5d\r\n",
 				(int)(acc_data[0]*acc_data[0]+acc_data[1]*acc_data[1]),
 				(int)(acc_data[0]*1000),
@@ -1031,6 +1067,13 @@ void SensorCheck::Loop(){
 				(int)(mouse->encorders->GetVelociryR_mm_s())
 				);
 		//*/
+	printf("%4d,%4d,%4d,%4d\r\n",
+			(int)(mouse->encorders->GetAngleL()),
+			(int)(mouse->encorders->GetAngleR()),
+			(int)(mouse->encorders->GetVelociryL_mm_s()),
+			(int)(mouse->encorders->GetVelociryR_mm_s())
+		);
+
 }
 
 void SensorCheck::Init(){
@@ -1050,12 +1093,14 @@ void SensorCheck::Interrupt_1ms(){
 	}
 
 	if(mouse->wall_sensor->GetWallFR() || mouse->wall_sensor->GetWallFL()){
-			mouse->motorR_PID->SetTarget(0);
-			mouse->motorL_PID->SetTarget(0);
+//			mouse->motorR_PID->SetTarget(0);
+//			mouse->motorL_PID->SetTarget(0);
 	}else if(mouse->wall_sensor->GetWallL()){
-		mouse->motorR_PID->SetTarget(200);
-		mouse->motorL_PID->SetTarget(200);
+//		mouse->motorR_PID->SetTarget(500);
+//		mouse->motorL_PID->SetTarget(500);
 	}
+	mouse->motorR_PID->SetTarget(500);
+	mouse->motorL_PID->SetTarget(500);
 
 	float velocity_r=mouse->encorders->GetVelociryR_mm_s();
 	float velocity_l=mouse->encorders->GetVelociryL_mm_s();
@@ -1066,8 +1111,8 @@ void SensorCheck::Interrupt_1ms(){
 	if(V_r<-v_max)V_r=-v_max;
 	if(V_l>v_max)V_l=v_max;
 	if(V_l<-v_max)V_l=-v_max;
-//	mouse->motors->SetVoltageR(V_r);
-//	mouse->motors->SetVoltageL(V_l);
+	mouse->motors->SetVoltageR(V_r);
+	mouse->motors->SetVoltageL(V_l);
 //	mouse->motors->SetVoltageR(0.5);
 //	mouse->motors->SetVoltageL(0.5);
 
@@ -1082,6 +1127,7 @@ void SensorCheck::Interrupt_1ms(){
 		mouse->buzzer->On_ms(3000,10);
 		next_mode=modeSelect_mode;
 	}
+
 };
 
 /////////////////////////////
