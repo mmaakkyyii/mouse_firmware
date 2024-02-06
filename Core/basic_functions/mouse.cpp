@@ -55,6 +55,8 @@ void Mouse::Init(){
 	int map_data[MAZESIZE_X][MAZESIZE_Y]={0};
 	int param_data[param_data_num]={0};
 	FlashGetData(map_data,param_data);
+	goal_pos_x=param_data[1];
+	goal_pos_y=param_data[2];
 //	FlashSetMazeData(map_data);
 //	FlashGetMazeData(map_data);
 	maze_solver->Init();
@@ -78,7 +80,7 @@ void Mouse::Init(){
 	}
 	buzzer->Off();		//�u�U�[�̔��U���~������	
 
-	printf("Battery %d mV: %d|\r\n",(int)(battery_check->GetBatteryVoltage_V()*1000),map_data[0][0]);
+	printf("Battery %d mV: goal(%d,%d)|\r\n",(int)(battery_check->GetBatteryVoltage_V()*1000),goal_pos_x,goal_pos_y);
 	//FlashSetMazeData(maze_solver->adachi.map);
 	//FlashPrintMazeData(maze_solver->adachi.map);
 

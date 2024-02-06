@@ -530,7 +530,7 @@ void SerchRun::Interrupt_1ms(){
 			}else if(flash_flag==true && trajectory->GetTragType()==stay){
 				flash_flag=false;
 				mouse->buzzer->On_ms(500,500);
-				int param_data[8]={1,0,0,0,0,0,0,0};
+				int param_data[param_data_num]={1,mouse->goal_pos_x,mouse->goal_pos_y,0,0,0,0,0};
 				FlashSetData(mouse->maze_solver->adachi.map,param_data);
 
 			}else{
@@ -664,14 +664,12 @@ void FastRun::Interrupt_1ms(){
 	float acc_data[3];
 	mouse->imu->GetAcc(acc_data);
 	if(idle){
-		static int sw1,sw2,sw3,pre_sw1,pre_sw2,pre_sw3;
+		static int sw1,sw2,pre_sw1,pre_sw2;
 
 		pre_sw1=sw1;
 		pre_sw2=sw2;
-		pre_sw3=sw3;
 		sw1=mouse->ui->GetSW1();
 		sw2=mouse->ui->GetSW2();
-		sw3=mouse->ui->GetSW3();
 
 		if(acc_data[2]<-9.8*2){
 			crash_en=true;
@@ -1131,6 +1129,89 @@ void SensorCheck::Interrupt_1ms(){
 };
 
 /////////////////////////////
+void ParameterSetting::Loop(){
+	printf("%d (%d,%d)\r\n",mode,x,y);
+};
+void ParameterSetting::Init(){
+	x=mouse->goal_pos_x;
+	y=mouse->goal_pos_y;
+};
+void ParameterSetting::Interrupt_1ms(){
+	float acc_data[3];
+	mouse->imu->GetAcc(acc_data);
+
+	static int sw1,sw2,pre_sw1,pre_sw2;
+
+	pre_sw1=sw1;
+	pre_sw2=sw2;
+	sw1=mouse->ui->GetSW1();
+	sw2=mouse->ui->GetSW2();
+
+	static int blink_time_ms=200;
+
+	switch(mode){
+	case 0:
+		if(mouse->encorders->GetVelociryR_mm_s()>100){
+			mouse->buzzer->On_ms(500,100);
+			mode=1;
+			blink_time_ms=100;
+		}
+
+		if(pre_sw1>sw1){
+			x++;
+			if(x>MAZESIZE_X)x=0;
+			led=x;
+		}
+
+		if(time_ms>blink_time_ms){
+			led=x-led;
+			time_ms=0;
+		}
+		mouse->ui->SetLED(led);
+
+
+		break;
+	case 1:
+		if(mouse->encorders->GetVelociryL_mm_s()>100){
+			mouse->buzzer->On_ms(300,100);
+			mode=0;
+			blink_time_ms=200;
+		}
+
+		if(pre_sw1>sw1){
+			y++;
+			if(y>MAZESIZE_Y)y=0;
+			led=y;
+		}
+
+		if(time_ms>blink_time_ms){
+			led=y-led;
+			time_ms=0;
+		}
+		mouse->ui->SetLED(led);
+
+
+		break;
+	}
+
+
+	time_ms++;
+
+	if(acc_data[2]<-7.0){
+		mouse->buzzer->On_ms(400,500);
+		mouse->goal_pos_x=x;
+		mouse->goal_pos_y=y;
+		next_mode=modeSelect_mode;
+	}
+
+
+};
+ParameterSetting::ParameterSetting(Mouse* _mouse):MachineMode(_mouse){
+current_mode=parameterSetting_mode;
+next_mode=parameterSetting_mode;
+};
+
+/////////////////////////////
 Debug::Debug(Mouse* _mouse)
 :MachineMode(_mouse),
 velocity_l(0),
@@ -1312,7 +1393,8 @@ void ResetMap::Init(){
 		}
 	}
 	mouse->maze_solver->adachi.InitMaze(UNKNOWN, map_data);
-	int param_data[param_data_num]={0};
+	int param_data[param_data_num]={0,mouse->goal_pos_x,mouse->goal_pos_y,0,0,0,0,0};
+
 	FlashSetData(mouse->maze_solver->adachi.map,param_data);
 	//FlashPrintMazeData(mouse->maze_solver->adachi.map);
 
