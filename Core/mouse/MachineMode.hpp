@@ -147,16 +147,17 @@ private:
 };
 class ParameterSetting:public MachineMode{
 public:
-	void Loop(){};
-	void Init(){};
-	void Interrupt_1ms(){
-		next_mode=modeSelect_mode;
-	};
-	ParameterSetting(Mouse* _mouse):MachineMode(_mouse){
-	current_mode=parameterSetting_mode;
-	next_mode=parameterSetting_mode;
-	};
+	void Loop();
+	void Init();
+	void Interrupt_1ms();
+	ParameterSetting(Mouse* _mouse);
 	virtual ~ParameterSetting(){};
+	int mode=0;
+	int time_ms=0;
+	int led=0;
+	int x=0;
+	int y=0;
+
 };
 
 class DoNotRotate:public MachineMode{
