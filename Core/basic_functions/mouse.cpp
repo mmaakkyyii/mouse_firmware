@@ -55,8 +55,8 @@ void Mouse::Init(){
 	int map_data[MAZESIZE_X][MAZESIZE_Y]={0};
 	int param_data[param_data_num]={0};
 	FlashGetData(map_data,param_data);
-	goal_pos_x=param_data[1];
-	goal_pos_y=param_data[2];
+	goal_pos_x=FlashGetGoalX();
+	goal_pos_y=FlashGetGoalY();
 //	FlashSetMazeData(map_data);
 //	FlashGetMazeData(map_data);
 	maze_solver->Init();

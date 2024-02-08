@@ -14,5 +14,7 @@ void FlashSetData(int maze_data[MAZESIZE_X][MAZESIZE_Y],int param_data[param_dat
 void FlashPrintMazeData(int data[MAZESIZE_X][MAZESIZE_Y]);
 void FlashSetGoalFlag(bool flag);
 uint8_t FlashGetGoalFlag();
+uint8_t FlashGetGoalX();
+uint8_t FlashGetGoalY();
 
 #endif /* FLASH_UTIL_HPP_ */

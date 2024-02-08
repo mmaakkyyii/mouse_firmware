@@ -3,6 +3,7 @@
 
 #include "mouse.hpp"
 #include <memory>
+#include "flash_util.hpp"
 
 typedef enum {
 	none_mode=-1,
@@ -22,7 +23,10 @@ typedef enum {
 
 class MachineMode{
 public:
-	MachineMode(Mouse* _mouse):mouse(_mouse),current_mode(modeSelect_mode),next_mode(modeSelect_mode),low_batt_count(0){}
+	MachineMode(Mouse* _mouse):mouse(_mouse),current_mode(modeSelect_mode),next_mode(modeSelect_mode),low_batt_count(0){
+		goal_x_setting=FlashGetGoalX();
+		goal_y_setting=FlashGetGoalY();
+	}
 	virtual ~MachineMode(){};
 	Mouse* mouse;
 	virtual void Loop(){};
@@ -46,6 +50,8 @@ protected:
 	ModeType current_mode;
 	ModeType next_mode;
 	int low_batt_count;
+	int goal_x_setting;
+	int goal_y_setting;
 };
 
 class Idle:public MachineMode{

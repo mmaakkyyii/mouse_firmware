@@ -71,6 +71,12 @@ uint8_t FlashGetGoalFlag(){
 	return data;
 }
 
+uint8_t FlashGetGoalX(){
+	return flash_data[MAZESIZE_Y*MAZESIZE_X+1];
+}
+uint8_t FlashGetGoalY(){
+	return flash_data[MAZESIZE_Y*MAZESIZE_X+2];
+}
 
 void FlashPrintMazeData(int data[MAZESIZE_X][MAZESIZE_Y]){
 	for(int y=MAZESIZE_Y-1;y>=0;y--){

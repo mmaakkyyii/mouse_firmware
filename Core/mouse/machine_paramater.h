@@ -22,6 +22,7 @@ const float Ki_motorL=0.001;
 const float Kd_motorL=0.00;
 
 const float Kp_wall=0.006;//0.003
+const float Kd_wall=0.000001;//0.003
 
 const float crash_acc=45.0;
 

@@ -181,9 +181,6 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 					mouse->goal_pos_y = 0;
 					goal_flag=true;
 				}else if(mouse->goal_time%2==0){
-					//mouse->goal_pos_x = GOAL_X;
-					//mouse->goal_pos_y = GOAL_Y;
-					//mouse->wall_mask=UNUSE_UNKOWN_WALL_MASK;
 					return_start_flag=true;
 				}
 				switch(mouse->mouse_dir){
@@ -398,8 +395,6 @@ void SerchRun::Init(){
 	mouse->mouse_pos_x=0;
 	mouse->mouse_pos_y=0;
 	mouse->mouse_dir=North;
-	mouse->goal_pos_x=GOAL_X;
-	mouse->goal_pos_y=GOAL_Y;
 	mouse->goal_time=0;
 	mouse->wall_mask=USE_UNKOWN_WALL_MASK;	
 	
@@ -507,9 +502,12 @@ void SerchRun::Interrupt_1ms(){
 
 			trajectory->GetTargetPosition(&target_x, &target_y, &target_theta);
 			trajectory->GetTargetVelocity(&target_vx,&target_vy,&target_omega);
-
-			float wall_control=Kp_wall*mouse->wall_sensor->GetError();
+			static float pre_error_wall;
+			float period_s=0.001;
+			float wall_control=Kp_wall*mouse->wall_sensor->GetError() + Kd_wall *(mouse->wall_sensor->GetError()-pre_error_wall)/period_s;
 			if(trajectory->GetTragType()==line)target_omega+=wall_control;
+
+			pre_error_wall=mouse->wall_sensor->GetError();
 
 			static float Kp_theta=10;//10
 			static float Ki_theta=0.0;
@@ -530,7 +528,7 @@ void SerchRun::Interrupt_1ms(){
 			}else if(flash_flag==true && trajectory->GetTragType()==stay){
 				flash_flag=false;
 				mouse->buzzer->On_ms(500,500);
-				int param_data[param_data_num]={1,mouse->goal_pos_x,mouse->goal_pos_y,0,0,0,0,0};
+				int param_data[param_data_num]={1,FlashGetGoalX(),FlashGetGoalY(),0,0,0,0,0};
 				FlashSetData(mouse->maze_solver->adachi.map,param_data);
 
 			}else{
@@ -640,9 +638,9 @@ void FastRun::Init(){
 
 	mouse->mouse_pos_x=0;
 	mouse->mouse_pos_y=0;
+	mouse->goal_pos_x=goal_x_setting;
+	mouse->goal_pos_y=goal_y_setting;
 	mouse->mouse_dir=North;
-	mouse->goal_pos_x=GOAL_X;
-	mouse->goal_pos_y=GOAL_Y;
 	mouse->goal_time=0;
 	mouse->wall_mask=UNUSE_UNKOWN_WALL_MASK;	
 	
@@ -1133,8 +1131,8 @@ void ParameterSetting::Loop(){
 	printf("%d (%d,%d)\r\n",mode,x,y);
 };
 void ParameterSetting::Init(){
-	x=mouse->goal_pos_x;
-	y=mouse->goal_pos_y;
+	x=goal_x_setting;
+	y=goal_y_setting;
 };
 void ParameterSetting::Interrupt_1ms(){
 	float acc_data[3];
@@ -1200,7 +1198,9 @@ void ParameterSetting::Interrupt_1ms(){
 	if(acc_data[2]<-7.0){
 		mouse->buzzer->On_ms(400,500);
 		mouse->goal_pos_x=x;
+		goal_x_setting=x;
 		mouse->goal_pos_y=y;
+		goal_y_setting=y;
 		next_mode=modeSelect_mode;
 	}
 
@@ -1393,7 +1393,7 @@ void ResetMap::Init(){
 		}
 	}
 	mouse->maze_solver->adachi.InitMaze(UNKNOWN, map_data);
-	int param_data[param_data_num]={0,mouse->goal_pos_x,mouse->goal_pos_y,0,0,0,0,0};
+	int param_data[param_data_num]={0,goal_x_setting,goal_y_setting,0,0,0,0,0};
 
 	FlashSetData(mouse->maze_solver->adachi.map,param_data);
 	//FlashPrintMazeData(mouse->maze_solver->adachi.map);
