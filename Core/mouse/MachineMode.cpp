@@ -707,16 +707,16 @@ void FastRun::Interrupt_1ms(){
 			v_max=500;
 			break;
 		case 3:
-			clothoid=clothoid_200mm_90deg_1;
+			clothoid=clothoid_350mm_90deg_1;
 			v_max=600;
 			break;
 		case 4:
-			clothoid=clothoid_200mm_90deg_1;
+			clothoid=clothoid_350mm_90deg_1;
 			v_max=700;
 			acc=5000;
 			break;
 		case 5:
-			clothoid=clothoid_200mm_90deg_1;
+			clothoid=clothoid_350mm_90deg_1;
 			v_max=800;
 			acc=5000;
 			break;
@@ -1298,18 +1298,18 @@ void Debug::Interrupt_1ms(){
 		if(cal){
 			idle=false;
 
-//			clothoid_params clothoid=clothoid_200mm_d90deg_1;
-//			trajectory= std::unique_ptr<MultTrajectory>(new MultTrajectory(
-//					new Line(0.0, SECTION_WIDTH/2.0+clothoid.in_mm, 0.0, clothoid.v, clothoid.v, clothoid.v, 20000.0, 0.0),
-//					new Clothoid(clothoid,-1),
-//					new Line(0.0, clothoid.out_mm+SECTION_WIDTH/2.0, 0.0, clothoid.v, clothoid.v, 0, 20000.0, 0.0)
-//				));
+			clothoid_params clothoid=clothoid_350mm_90deg_1;
+			trajectory= std::unique_ptr<MultTrajectory>(new MultTrajectory(
+					new Line(0.0, SECTION_WIDTH*3/2.0+clothoid.in_mm, 0.0, 0, clothoid.v, clothoid.v, 5000.0, 0.0),
+					new Clothoid(clothoid,-1),
+					new Line(0.0, clothoid.out_mm+SECTION_WIDTH*3/2.0, 0.0, clothoid.v, clothoid.v, 0, 5000.0, 0.0)
+				));
 
 			turn_v_max=200;
 			turn_omega_max=2*100/50;
 			a_omega=80;
 
-			trajectory= std::unique_ptr<Line>(new Line(0.0, SECTION_WIDTH * 15, 0.0, 0, 800, 0, 1000.0, 0.0));
+			//trajectory= std::unique_ptr<Line>(new Line(0.0, SECTION_WIDTH * 15, 0.0, 0, 800, 0, 1000.0, 0.0));
 			//trajectory= std::unique_ptr<Rotate>(new Rotate(360*10,turn_omega_max,a_omega));
 			mouse->mouse_pos_y++;
 			//trajectory=new Rotate(90, 0, 100.0, 0, 1);
