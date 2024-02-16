@@ -22,7 +22,7 @@ float acc;
 
 bool goal_flag=false;
 
-const int log_data_num=2000;
+const int log_data_num=3000;
 int log_data[log_data_num][4];
 int log_index=0;
 float gyro[3];
@@ -886,9 +886,12 @@ void FastRun::Interrupt_1ms(){
 			if(target_vy>500){
 				Kp_wall_correction=0.00006*(target_vy-500);//v=0~2000; 0~1300
 			}
-
-			float wall_control=(Kp_wall+Kp_wall_correction)*mouse->wall_sensor->GetError();
+			static float pre_error_wall;
+			float period_s=0.001;
+			float wall_control=Kp_wall*mouse->wall_sensor->GetError() + Kd_wall *(mouse->wall_sensor->GetError()-pre_error_wall)/period_s;
 			if(trajectory->GetTragType()==line)target_omega+=wall_control;
+
+			pre_error_wall=mouse->wall_sensor->GetError();
 
 			Jacobian(target_vy,target_omega,&target_velocity_r,&target_velocity_l);
 			
@@ -1201,6 +1204,10 @@ void ParameterSetting::Interrupt_1ms(){
 		goal_x_setting=x;
 		mouse->goal_pos_y=y;
 		goal_y_setting=y;
+		int param_data[param_data_num]={0,goal_x_setting,goal_y_setting,0,0,0,0,0};
+
+		FlashSetData(mouse->maze_solver->adachi.map,param_data);
+
 		next_mode=modeSelect_mode;
 	}
 
@@ -1302,7 +1309,7 @@ void Debug::Interrupt_1ms(){
 			turn_omega_max=2*100/50;
 			a_omega=80;
 
-			trajectory= std::unique_ptr<Line>(new Line(0.0, SECTION_WIDTH * 15, 0.0, 0, 170, 0, 500.0, 0.0));
+			trajectory= std::unique_ptr<Line>(new Line(0.0, SECTION_WIDTH * 15, 0.0, 0, 800, 0, 1000.0, 0.0));
 			//trajectory= std::unique_ptr<Rotate>(new Rotate(360*10,turn_omega_max,a_omega));
 			mouse->mouse_pos_y++;
 			//trajectory=new Rotate(90, 0, 100.0, 0, 1);
@@ -1316,8 +1323,12 @@ void Debug::Interrupt_1ms(){
 			trajectory->GetTargetPosition(&target_x, &target_y, &target_theta);
 			trajectory->GetTargetVelocity(&target_vx,&target_vy,&target_omega);
 
-			float wall_control=Kp_wall*mouse->wall_sensor->GetError();
+			static float pre_error_wall;
+			float period_s=0.001;
+			float wall_control=Kp_wall*mouse->wall_sensor->GetError() + Kd_wall *(mouse->wall_sensor->GetError()-pre_error_wall)/period_s;
 			if(trajectory->GetTragType()==line)target_omega+=wall_control;
+
+			pre_error_wall=mouse->wall_sensor->GetError();
 
 			Jacobian(target_vy,target_omega,&target_velocity_r,&target_velocity_l);
 			
@@ -1393,9 +1404,9 @@ void ResetMap::Init(){
 		}
 	}
 	mouse->maze_solver->adachi.InitMaze(UNKNOWN, map_data);
-	int param_data[param_data_num]={0,goal_x_setting,goal_y_setting,0,0,0,0,0};
+		int param_data[param_data_num]={0,goal_x_setting,goal_y_setting,0,0,0,0,0};
 
-	FlashSetData(mouse->maze_solver->adachi.map,param_data);
+		FlashSetData(mouse->maze_solver->adachi.map,param_data);
 	//FlashPrintMazeData(mouse->maze_solver->adachi.map);
 
 };
