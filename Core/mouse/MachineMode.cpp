@@ -205,19 +205,19 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 					//mouse->buzzer->On_ms(240,500);
 					traj=new DoubleTrajectory(
 						new MultTrajectory(
-							new Line(0.0, SECTION_WIDTH/2, 0.0 , v_max, v_max, 0.0, 10000.0, 0.0),
+							new Line(0.0, SECTION_WIDTH/2, 0.0 , v_max, v_max, 0.0, acc, 0.0),
 							new Rotate(180,turn_omega_max,a_omega),
 							new Stay(100)
 						),
 						new DoubleTrajectory(
 							new Stay(1500),
-							new Line(0.0, SECTION_WIDTH/2.0, 0.0, 0, v_max, v_max, 10000.0, 0.0)
+							new Line(0.0, SECTION_WIDTH/2.0, 0.0, 0, v_max, v_max, acc, 0.0)
 						)
 						);
 				}else{
 					//mouse->buzzer->On_ms(240,500);
 					traj=new MultTrajectory(
-							new Line(0.0, SECTION_WIDTH/2, 0.0 , v_max, v_max, 0.0, 10000.0, 0.0),
+							new Line(0.0, SECTION_WIDTH/2, 0.0 , v_max, v_max, 0.0, acc, 0.0),
 //							new Rotate(180, 0, turn_v_max, 0, 1),
 							new Rotate(180,turn_omega_max,a_omega),
 							new Stay(500)
@@ -264,7 +264,7 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 					break;
 				case -2:
 					traj=new MultTrajectory(
-						new Line(0.0, SECTION_WIDTH/2.0, 0.0, v_max, v_max, v_max, 4000.0, 0.0),
+						new Line(0.0, SECTION_WIDTH/2.0, 0.0, v_max, v_max, v_max, acc, 0.0),
 						new MultTrajectory(
 							new Rotate(180,turn_omega_max,a_omega),
 							new ConstantVoltage(-MACHINE_BACK_VOLTAGE_R,-MACHINE_BACK_VOLTAGE_L,MACHINE_BACK_TIME),
@@ -272,7 +272,7 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 							//new Stay(100)	
 							//new Line(0.0, -180.0, 0.0, 0, 400, 0, 400.0, 0.0)
 						),
-						new Line(0.0, SECTION_WIDTH/2.0+MACHINE_BACK_LENGTH, 0.0, v_max, v_max, v_max, 10000.0, 0.0)
+						new Line(0.0, SECTION_WIDTH/2.0+MACHINE_BACK_LENGTH, 0.0, v_max, v_max, v_max, acc, 0.0)
 //						new Line(0.0, 180/2.0, 0.0, v_max, v_max, v_max, 10000.0, 0.0)
 						);
 					break;
@@ -295,7 +295,7 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 					break;
 				case 2:
 					traj=new MultTrajectory(
-						new Line(0.0, SECTION_WIDTH/2.0, 0.0, v_max, v_max, v_max, 4000.0, 0.0),
+						new Line(0.0, SECTION_WIDTH/2.0, 0.0, v_max, v_max, v_max, acc, 0.0),
 						new MultTrajectory(
 							new Rotate(180,turn_omega_max,a_omega),
 							//new Stay(100)	
@@ -304,7 +304,7 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 
 							//new Line(0.0, -180.0, 0.0, 0, 400, 0, 400.0, 0.0)
 						),
-						new Line(0.0, SECTION_WIDTH/2.0+MACHINE_BACK_LENGTH, 0.0, v_max, v_max, v_max, 10000.0, 0.0)
+						new Line(0.0, SECTION_WIDTH/2.0+MACHINE_BACK_LENGTH, 0.0, v_max, v_max, v_max, acc, 0.0)
 //						new Line(0.0, 180/2.0, 0.0, v_max, v_max, v_max, 10000.0, 0.0)
 						);
 					break;
@@ -387,9 +387,12 @@ void SerchRun::Init(){
 	mouse->motorL_PID->Reset();
 	
 	v_max=200;
+	acc=3500;
+
 	turn_v_max=200;
-	turn_omega_max=2*100/50;
+	turn_omega_max=2*200/50;
 	a_omega=80;
+
 	clothoid=clothoid_200mm_90deg_1;
 
 	mouse->mouse_pos_x=0;
@@ -441,26 +444,32 @@ void SerchRun::Interrupt_1ms(){
 			case 0:
 				clothoid=clothoid_150mm_90deg_1;
 				v_max=180;
+				acc=3500;
 				break;
 			case 1:
 				clothoid=clothoid_150mm_90deg_1;
 				v_max=150;
+				acc=3500;
 				break;
 			case 2:
 				clothoid=clothoid_200mm_90deg_1;
 				v_max=200;
+				acc=3500;
 				break;
 			case 3:
 				clothoid=clothoid_150mm_90deg_1;
 				v_max=250;
+				acc=3500;
 				break;
 			case 4:
 				clothoid=clothoid_200mm_90deg_1;
 				v_max=250;
+				acc=3500;
 				break;
 			default: 
 				clothoid=clothoid_200mm_90deg_1;
 				v_max=200;
+				acc=3500;
 				break;
 		}
 
@@ -481,7 +490,7 @@ void SerchRun::Interrupt_1ms(){
 		if(cal){
 			idle=false;
 			mouse->ui->SetLED(15);
-			trajectory=std::unique_ptr<Line>(new Line(0.0, SECTION_WIDTH/2.0, 0.0, 0.0, v_max, v_max, 6000.0, 0.0));
+			trajectory=std::unique_ptr<Line>(new Line(0.0, SECTION_WIDTH/2.0, 0.0, 0.0, v_max, v_max, acc, 0.0));
 			mouse->mouse_pos_y++;
 			//trajectory=new Rotate(90, 0, 100.0, 0, 1);
 			trajectory->Update();
@@ -709,6 +718,7 @@ void FastRun::Interrupt_1ms(){
 		case 3:
 			clothoid=clothoid_350mm_90deg_1;
 			v_max=600;
+			acc=5000;
 			break;
 		case 4:
 			clothoid=clothoid_350mm_90deg_1;
@@ -823,15 +833,15 @@ void FastRun::Interrupt_1ms(){
 
 					if(path_index>=path_length){
 						trajectory =std::unique_ptr<MultTrajectory>(new MultTrajectory(
-							new Line(0.0, clothoid.in_mm, 0.0, clothoid.v, clothoid.v, clothoid.v, 20000.0, 0.0),
+							new Line(0.0, clothoid.in_mm, 0.0, clothoid.v, clothoid.v, clothoid.v, acc, 0.0),
 							new Clothoid(clothoid,-1),
-							new Line(0.0, clothoid.out_mm+SECTION_WIDTH/2, 0.0, clothoid.v, clothoid.v, 0, 20000.0, 0.0)
+							new Line(0.0, clothoid.out_mm+SECTION_WIDTH/2, 0.0, clothoid.v, clothoid.v, 0, acc, 0.0)
 							));
 					}else{
 						trajectory =std::unique_ptr<MultTrajectory>(new MultTrajectory(
-							new Line(0.0, clothoid.in_mm, 0.0, clothoid.v, clothoid.v+1, clothoid.v, 20000.0, 0.0),
+							new Line(0.0, clothoid.in_mm, 0.0, clothoid.v, clothoid.v+1, clothoid.v, acc, 0.0),
 							new Clothoid(clothoid,-1),
-							new Line(0.0, clothoid.out_mm, 0.0, clothoid.v, clothoid.v+1, clothoid.v, 20000.0, 0.0)
+							new Line(0.0, clothoid.out_mm, 0.0, clothoid.v, clothoid.v+1, clothoid.v, acc, 0.0)
 						));
 
 					}
@@ -843,15 +853,15 @@ void FastRun::Interrupt_1ms(){
 
 					if(path_index>=path_length){
 						trajectory =std::unique_ptr<MultTrajectory>(new MultTrajectory(
-							new Line(0.0, clothoid.in_mm, 0.0, clothoid.v, clothoid.v, clothoid.v, 20000.0, 0.0),
+							new Line(0.0, clothoid.in_mm, 0.0, clothoid.v, clothoid.v, clothoid.v, acc, 0.0),
 							new Clothoid(clothoid,1),
-							new Line(0.0, clothoid.out_mm+SECTION_WIDTH/2, 0.0, clothoid.v, clothoid.v+1, 0, 20000.0, 0.0)
+							new Line(0.0, clothoid.out_mm+SECTION_WIDTH/2, 0.0, clothoid.v, clothoid.v+1, 0, acc, 0.0)
 							));
 					}else{
 						trajectory =std::unique_ptr<MultTrajectory>(new MultTrajectory(
-							new Line(0.0, clothoid.in_mm, 0.0, clothoid.v, clothoid.v, clothoid.v, 20000.0, 0.0),
+							new Line(0.0, clothoid.in_mm, 0.0, clothoid.v, clothoid.v, clothoid.v, acc, 0.0),
 							new Clothoid(clothoid,1),
-							new Line(0.0, clothoid.out_mm, 0.0, clothoid.v, clothoid.v+1, clothoid.v, 20000.0, 0.0)
+							new Line(0.0, clothoid.out_mm, 0.0, clothoid.v, clothoid.v+1, clothoid.v, acc, 0.0)
 						));
 					}
 //					printf("L\r\n");
@@ -1298,19 +1308,23 @@ void Debug::Interrupt_1ms(){
 		if(cal){
 			idle=false;
 
-			clothoid_params clothoid=clothoid_350mm_90deg_1;
-			trajectory= std::unique_ptr<MultTrajectory>(new MultTrajectory(
-					new Line(0.0, SECTION_WIDTH*3/2.0+clothoid.in_mm, 0.0, 0, clothoid.v, clothoid.v, 5000.0, 0.0),
-					new Clothoid(clothoid,-1),
-					new Line(0.0, clothoid.out_mm+SECTION_WIDTH*3/2.0, 0.0, clothoid.v, clothoid.v, 0, 5000.0, 0.0)
-				));
+
+//			clothoid_params clothoid=clothoid_350mm_90deg_1;
+//			trajectory= std::unique_ptr<MultTrajectory>(new MultTrajectory(
+//					new Line(0.0, SECTION_WIDTH*3/2.0+clothoid.in_mm, 0.0, 0, clothoid.v, clothoid.v, 5000.0, 0.0),
+//					new Clothoid(clothoid,-1),
+//					new Line(0.0, clothoid.out_mm+SECTION_WIDTH*3/2.0, 0.0, clothoid.v, clothoid.v, 0, 5000.0, 0.0)
+//				));
+
 
 			turn_v_max=200;
 			turn_omega_max=2*100/50;
 			a_omega=80;
 
+
+
 			//trajectory= std::unique_ptr<Line>(new Line(0.0, SECTION_WIDTH * 15, 0.0, 0, 800, 0, 1000.0, 0.0));
-			//trajectory= std::unique_ptr<Rotate>(new Rotate(360*10,turn_omega_max,a_omega));
+			trajectory= std::unique_ptr<Rotate>(new Rotate(360*1,turn_omega_max,a_omega));
 			mouse->mouse_pos_y++;
 			//trajectory=new Rotate(90, 0, 100.0, 0, 1);
 		}
