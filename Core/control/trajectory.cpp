@@ -273,7 +273,8 @@ pos(0)
 		t2=l/vmax-(vmax*vmax-v0*v0)/(2*a*vmax)-(vmax*vmax-vf*vf)/(2*a*vmax)+t1;
 		t3=(vmax-vf)/a+t2;
 	}else{
-		t1=(-v0+sqrt(v0*v0 - (v0*v0 -3*v0*vf+2*vf*vf)/2 + a*l ))/(a);
+		t1=-(2*v0 - sqrt(2*v0*v0 + 2*vf*vf + 4*l*a))/(2*a);
+		//t1=(-v0+sqrt(v0*v0 - (v0*v0 -3*v0*vf+2*vf*vf)/2 + a*l ))/(a);
 		t2=t1;
 		t3=(v0+a*t1-vf)/a+t1;
 	}
