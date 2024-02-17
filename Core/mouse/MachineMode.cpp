@@ -272,7 +272,7 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 							//new Stay(100)	
 							//new Line(0.0, -180.0, 0.0, 0, 400, 0, 400.0, 0.0)
 						),
-						new Line(0.0, SECTION_WIDTH/2.0+MACHINE_BACK_LENGTH, 0.0, v_max, v_max, v_max, acc, 0.0)
+						new Line(0.0, SECTION_WIDTH/2.0+MACHINE_BACK_LENGTH, 0.0, 0, v_max, v_max, acc, 0.0)
 //						new Line(0.0, 180/2.0, 0.0, v_max, v_max, v_max, 10000.0, 0.0)
 						);
 					break;
@@ -304,7 +304,7 @@ Trajectory* trajectryUpdate(Mouse* mouse,clothoid_params clothoid){
 
 							//new Line(0.0, -180.0, 0.0, 0, 400, 0, 400.0, 0.0)
 						),
-						new Line(0.0, SECTION_WIDTH/2.0+MACHINE_BACK_LENGTH, 0.0, v_max, v_max, v_max, acc, 0.0)
+						new Line(0.0, SECTION_WIDTH/2.0+MACHINE_BACK_LENGTH, 0.0, 0, v_max, v_max, acc, 0.0)
 //						new Line(0.0, 180/2.0, 0.0, v_max, v_max, v_max, 10000.0, 0.0)
 						);
 					break;
@@ -444,17 +444,17 @@ void SerchRun::Interrupt_1ms(){
 			case 0:
 				clothoid=clothoid_150mm_90deg_1;
 				v_max=180;
-				acc=3500;
+				acc=2000;
 				break;
 			case 1:
 				clothoid=clothoid_150mm_90deg_1;
 				v_max=150;
-				acc=3500;
+				acc=2000;
 				break;
 			case 2:
 				clothoid=clothoid_200mm_90deg_1;
 				v_max=200;
-				acc=3500;
+				acc=2000;
 				break;
 			case 3:
 				clothoid=clothoid_150mm_90deg_1;
@@ -577,6 +577,8 @@ void SerchRun::Interrupt_1ms(){
 /////////////////////////////
 FastRun::FastRun(Mouse* _mouse):
 MachineMode(_mouse),
+setting_mode(0),
+vel_mode(0),
 sla_mode(0),
 velocity_l(0),
 velocity_r(0),
@@ -643,7 +645,7 @@ void FastRun::Init(){
 	turn_omega_max=2*100/50;
 	a_omega=80;
 	acc=3500;
-	clothoid=clothoid_350mm_90deg_short;
+	clothoid=clothoid_200mm_90deg_1;
 
 	mouse->mouse_pos_x=0;
 	mouse->mouse_pos_y=0;
@@ -663,7 +665,9 @@ void FastRun::Init(){
 	mouse->maze_solver->adachi.MakeRunPlan(path_length,mouse->mouse_dir);
 	printf("OK\r\n");
 	path_index=0;
+	vel_mode=0;
 	sla_mode=0;
+	setting_mode=0;
 	
 }
 
@@ -684,64 +688,92 @@ void FastRun::Interrupt_1ms(){
 
 		}
 
+		if(setting_mode!=1 && mouse->encorders->GetVelociryL_mm_s()>100){
+			setting_mode=1;
+			mouse->buzzer->On_ms(400,100);
+		}
+		if(setting_mode!=0 && mouse->encorders->GetVelociryR_mm_s()>100){
+			setting_mode=0;
+			mouse->buzzer->On_ms(400,100);
+		}
 		if(pre_sw1>sw1){
-			sla_mode++;
-			mouse->buzzer->On_ms(300,40);
-			if(sla_mode>16){
-				sla_mode=0;
-				mouse->buzzer->On_ms(500,40);
+			if(setting_mode==0){
+				vel_mode++;
+				mouse->buzzer->On_ms(300,40);
+				if(vel_mode>8){
+					vel_mode=0;
+					mouse->buzzer->On_ms(500,40);
+				}
+			}else if(setting_mode==1){
+				sla_mode++;
+				mouse->buzzer->On_ms(300,40);
+				if(sla_mode>8){
+					sla_mode=0;
+					mouse->buzzer->On_ms(500,40);
+				}
+
 			}
 		}
 		static int led=0;
 		static int led_timer=0;
 		led_timer++;
-		if(led_timer>100){
+		if(led_timer>50+50*setting_mode){
 			led_timer=0;
 			led=8-led;
 		}
 
-		mouse->ui->SetLED(sla_mode|led);
+		if(setting_mode==0)mouse->ui->SetLED(vel_mode|led);
+		if(setting_mode==1)mouse->ui->SetLED(sla_mode|led);
 
 		switch(sla_mode){
 		case 0:
 			clothoid=clothoid_200mm_90deg_1;
-			v_max=200;
 			break;
 		case 1:
-			clothoid=clothoid_200mm_90deg_1;
-			v_max=400;
+			clothoid=clothoid_250mm_90deg_1;
 			break;
 		case 2:
-			clothoid=clothoid_200mm_90deg_1;
-			v_max=500;
-			break;
-		case 3:
-			clothoid=clothoid_350mm_90deg_1;
-			v_max=600;
-			acc=5000;
-			break;
-		case 4:
-			clothoid=clothoid_350mm_90deg_1;
-			v_max=700;
-			acc=5000;
-			break;
-		case 5:
-			clothoid=clothoid_350mm_90deg_1;
-			v_max=800;
-			acc=5000;
-			break;
-		case 6:
-			clothoid=clothoid_200mm_90deg_1;
-			v_max=900;
-			acc=5000;
-			break;
-		case 7:
-			clothoid=clothoid_200mm_90deg_1;
-			v_max=1000;
-			acc=5000;
+			clothoid=clothoid_300mm_90deg_1;
 			break;
 		default:
 			clothoid=clothoid_200mm_90deg_1;
+			break;
+		}
+
+		switch(vel_mode){
+		case 0:
+			v_max=200;
+			acc=2000;
+			break;
+		case 1:
+			v_max=400;
+			acc=2000;
+			break;
+		case 2:
+			v_max=500;
+			acc=2000;
+			break;
+		case 3:
+			v_max=550;
+			acc=2000;
+			break;
+		case 4:
+			v_max=600;
+			acc=2000;
+			break;
+		case 5:
+			v_max=650;
+			acc=2000;
+			break;
+		case 6:
+			v_max=700;
+			acc=2500;
+			break;
+		case 7:
+			v_max=1000;
+			acc=2500;
+			break;
+		default:
 			v_max=200;
 			break;
 		}
@@ -948,6 +980,14 @@ void LowBattery::Init(){
 void LowBattery::Interrupt_1ms(){
 	mouse->motors->SetVoltageR(0);
 	mouse->motors->SetVoltageL(0);
+	static int timer=0;
+	static int led=1;
+	if(timer>100){
+		timer=0;
+		led=9-led;
+	}
+	timer++;
+	mouse->ui->SetLED(led);
 
 //	mouse->buzzer->On_ms(400,1000);
 }
@@ -1061,7 +1101,7 @@ void SensorCheck::Loop(){
 				(int)(mouse->encorders->GetVelociryR_mm_s())
 			);
 	//*/
-/*
+///*
 			printf("%4d,%4d,%4d,%4d,%4d,%d,%d,%d,%d,%5d,%5d\r\n",
 				(int)(acc_data[0]*acc_data[0]+acc_data[1]*acc_data[1]),
 				(int)(acc_data[0]*1000),
@@ -1076,12 +1116,12 @@ void SensorCheck::Loop(){
 				(int)(mouse->encorders->GetVelociryR_mm_s())
 				);
 		//*/
-	printf("%4d,%4d,%4d,%4d\r\n",
-			(int)(mouse->encorders->GetAngleL()),
-			(int)(mouse->encorders->GetAngleR()),
-			(int)(mouse->encorders->GetVelociryL_mm_s()),
-			(int)(mouse->encorders->GetVelociryR_mm_s())
-		);
+//	printf("%4d,%4d,%4d,%4d\r\n",
+//			(int)(mouse->encorders->GetAngleL()),
+//			(int)(mouse->encorders->GetAngleR()),
+//			(int)(mouse->encorders->GetVelociryL_mm_s()),
+//			(int)(mouse->encorders->GetVelociryR_mm_s())
+//		);
 
 }
 
@@ -1120,10 +1160,10 @@ void SensorCheck::Interrupt_1ms(){
 	if(V_r<-v_max)V_r=-v_max;
 	if(V_l>v_max)V_l=v_max;
 	if(V_l<-v_max)V_l=-v_max;
-	mouse->motors->SetVoltageR(V_r);
-	mouse->motors->SetVoltageL(V_l);
-//	mouse->motors->SetVoltageR(0.5);
-//	mouse->motors->SetVoltageL(0.5);
+//	mouse->motors->SetVoltageR(V_r);
+//	mouse->motors->SetVoltageL(V_l);
+	mouse->motors->SetVoltageR(0);
+	mouse->motors->SetVoltageL(0);
 
 	static int led=1;
 	led=1-led;
@@ -1308,25 +1348,26 @@ void Debug::Interrupt_1ms(){
 		if(cal){
 			idle=false;
 
+//*
 
-//			clothoid_params clothoid=clothoid_350mm_90deg_1;
-//			trajectory= std::unique_ptr<MultTrajectory>(new MultTrajectory(
-//					new Line(0.0, SECTION_WIDTH*3/2.0+clothoid.in_mm, 0.0, 0, clothoid.v, clothoid.v, 5000.0, 0.0),
-//					new Clothoid(clothoid,-1),
-//					new Line(0.0, clothoid.out_mm+SECTION_WIDTH*3/2.0, 0.0, clothoid.v, clothoid.v, 0, 5000.0, 0.0)
-//				));
+			acc=2000;
+			clothoid_params clothoid=clothoid_200mm_90deg_1;
 
+			trajectory= std::unique_ptr<MultTrajectory>(new MultTrajectory(
+					new Line(0.0, SECTION_WIDTH*3/2.0+clothoid.in_mm, 0.0, 0, 600, clothoid.v, 2000.0, 0.0),
+					new Clothoid(clothoid,-1),
+					new Line(0.0, clothoid.out_mm+SECTION_WIDTH*3/2.0, 0.0, clothoid.v, clothoid.v, 0, 2000.0, 0.0)
+				));
+//*/
 
 			turn_v_max=200;
 			turn_omega_max=2*100/50;
 			a_omega=80;
 
 
-
-			//trajectory= std::unique_ptr<Line>(new Line(0.0, SECTION_WIDTH * 15, 0.0, 0, 800, 0, 1000.0, 0.0));
-			trajectory= std::unique_ptr<Rotate>(new Rotate(360*1,turn_omega_max,a_omega));
+			//trajectory= std::unique_ptr<Line>(new Line(0.0, SECTION_WIDTH * 1, 0.0, 0, 600, 0, 2000.0, 0.0));
+			//trajectory= std::unique_ptr<Rotate>(new Rotate(360*1,turn_omega_max,a_omega));
 			mouse->mouse_pos_y++;
-			//trajectory=new Rotate(90, 0, 100.0, 0, 1);
 		}
 	}else{
 		if(trajectory->Update()){

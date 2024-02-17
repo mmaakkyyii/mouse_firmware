@@ -127,6 +127,8 @@ public:
 private:
 	std::unique_ptr<Trajectory> trajectory;
 	clothoid_params clothoid;
+	char setting_mode;
+	char vel_mode;
 	char sla_mode;
 	float velocity_l,velocity_r;
 	float target_velocity_l,target_velocity_r;
