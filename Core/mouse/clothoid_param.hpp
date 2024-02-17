@@ -19,7 +19,24 @@ clothoid_params clothoid_150mm_90deg_1={
 5
 };
 
-
+clothoid_params clothoid_250mm_90deg_1={
+0.039911486,
+0.219911486,
+0.259822972,
+7.142857143,
+250,
+5,
+5
+};
+clothoid_params clothoid_300mm_90deg_1={
+0.033259571,
+0.183259571,
+0.216519143,
+8.571428571,
+300,
+5,
+5
+};
 
 clothoid_params clothoid_350mm_90deg_1={
 0.027079633,
