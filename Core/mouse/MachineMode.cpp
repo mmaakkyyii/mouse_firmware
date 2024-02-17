@@ -767,11 +767,15 @@ void FastRun::Interrupt_1ms(){
 			break;
 		case 6:
 			v_max=700;
-			acc=2500;
+			acc=2000;
 			break;
 		case 7:
-			v_max=1000;
-			acc=2500;
+			v_max=750;
+			acc=2000;
+			break;
+		case 8:
+			v_max=800;
+			acc=2000;
 			break;
 		default:
 			v_max=200;
@@ -1348,7 +1352,7 @@ void Debug::Interrupt_1ms(){
 		if(cal){
 			idle=false;
 
-//*
+/*
 
 			acc=2000;
 			clothoid_params clothoid=clothoid_200mm_90deg_1;
@@ -1365,7 +1369,7 @@ void Debug::Interrupt_1ms(){
 			a_omega=80;
 
 
-			//trajectory= std::unique_ptr<Line>(new Line(0.0, SECTION_WIDTH * 1, 0.0, 0, 600, 0, 2000.0, 0.0));
+			trajectory= std::unique_ptr<Line>(new Line(0.0, SECTION_WIDTH * 15, 0.0, 0, 400, 0, 2000.0, 0.0));
 			//trajectory= std::unique_ptr<Rotate>(new Rotate(360*1,turn_omega_max,a_omega));
 			mouse->mouse_pos_y++;
 		}
