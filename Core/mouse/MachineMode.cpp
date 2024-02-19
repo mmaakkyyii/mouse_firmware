@@ -28,6 +28,11 @@ int log_index=0;
 float gyro[3];
 int gyro_raw[3];
 
+float Kp_wall=0.004;//0.004
+float Kd_wall=0.0001;//0.0003
+const float Kp_omega=0.0005;//0.001
+const float crash_acc=45.0*2;
+
 
 
 ModeSelect::ModeSelect(Mouse* _mouse):MachineMode(_mouse){
@@ -1369,7 +1374,7 @@ void Debug::Interrupt_1ms(){
 			a_omega=80;
 
 
-			trajectory= std::unique_ptr<Line>(new Line(0.0, SECTION_WIDTH * 15, 0.0, 0, 400, 0, 2000.0, 0.0));
+			trajectory= std::unique_ptr<Line>(new Line(0.0, SECTION_WIDTH * 3, 0.0, 0, 400, 0, 2000.0, 0.0));
 			//trajectory= std::unique_ptr<Rotate>(new Rotate(360*1,turn_omega_max,a_omega));
 			mouse->mouse_pos_y++;
 		}
@@ -1400,6 +1405,7 @@ void Debug::Interrupt_1ms(){
 			velocity_l=mouse->encorders->GetVelociryL_mm_s();
 			V_r=mouse->motorR_PID->Update(velocity_r);
 			V_l=mouse->motorL_PID->Update(velocity_l);
+
 
 			mouse->motors->SetVoltageR(V_r);
 			mouse->motors->SetVoltageL(V_l);
